@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SUQ — Inventory &amp; Landed Cost</title>
+<title>SUQ — Inventory Management</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,8 +14,7 @@
   --line:#DEDFD8; --line-soft:#EBECE6;
   --gulf:#0E6E6E; --gulf-tint:#E4F0EF;
   --amber:#A96A08; --amber-tint:#FBF0DE;
-  --sand:#B79A5E; --sand-tint:#F5EEDF;
-  --slate:#3A4A5C; --slate-tint:#E7EBEF;
+  --sand:#B79A5E; --slate:#3A4A5C; --slate-tint:#E7EBEF;
   --muted:#6B6F76; --r:10px;
   --sans:'IBM Plex Sans Arabic','Segoe UI',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
@@ -23,469 +22,780 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:var(--sans);background:var(--gypsum);color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
 button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer;border:0;background:none}
-input,select{font-family:var(--mono);font-size:13px;color:var(--ink)}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+input,select,textarea{font-family:var(--mono);font-size:13px;color:var(--ink)}
 .shell{max-width:1280px;margin:0 auto;padding:14px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
-.mast{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+/* header + nav */
+.mast{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .brand{display:flex;align-items:baseline;gap:8px}
 .brand b{font-size:22px;font-weight:700;letter-spacing:-.02em}
-.brand .sub{font-size:11px;color:var(--muted);letter-spacing:.10em;text-transform:uppercase}
+.brand span{font-size:11px;color:var(--muted);letter-spacing:.10em;text-transform:uppercase}
 .spacer{flex:1}
-.tabs{display:flex;gap:6px;flex-wrap:wrap}
-.tabs button{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:500;color:var(--muted)}
-.tabs button[aria-pressed="true"]{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.ghost{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 12px;font-weight:500;color:var(--muted)}
+.ghost:hover{border-color:var(--ink);color:var(--ink)}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+nav button{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:500;color:var(--muted);white-space:nowrap}
+nav button[aria-current="true"]{background:var(--maroon);border-color:var(--maroon);color:#fff}
 
+/* cards + tables */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px}
 .card h2{margin:0;padding:11px 14px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-soft);font-weight:600;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.card h2 .tag{margin-inline-start:auto;letter-spacing:0;text-transform:none;font-size:11px;font-family:var(--mono)}
+.card h2 .tag{margin-inline-start:auto;letter-spacing:0;text-transform:none;font-size:11px;font-family:var(--mono);font-weight:500}
 .pad{padding:14px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:end;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap;background:#FAFAF8}
+th:first-child{text-align:start}
+td{padding:7px 8px;border-bottom:1px solid var(--line-soft);text-align:end;font-family:var(--mono);font-size:13px;white-space:nowrap}
+td:first-child{text-align:start;font-family:var(--sans)}
+tbody tr:hover{background:#FBFBF9}
+tfoot td{border-top:2px solid var(--line);border-bottom:0;font-weight:700}
+.pn{font-weight:600;display:block}
+.pn+small{color:var(--muted);font-size:11px}
+td input,td select{border:1px solid var(--line);border-radius:6px;padding:4px 6px;width:78px;text-align:end;background:#F7F8F5}
+td select{width:auto;text-align:start;font-family:var(--sans);font-size:12px}
+td input:focus,td select:focus{outline:2px solid var(--maroon);outline-offset:-1px;background:#fff}
 
-/* shipment header controls */
-.ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;padding:14px}
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px}
+.kpi .v{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.kpi .l{font-size:11px;color:var(--muted);margin-top:3px}
+.kpi.warn .v{color:var(--amber)} .kpi.bad .v{color:var(--maroon)} .kpi.good .v{color:var(--gulf)}
+
+/* pills */
+.p{font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;white-space:nowrap;display:inline-block}
+.p-ok{background:var(--gulf-tint);color:var(--gulf)}
+.p-warn{background:var(--amber-tint);color:var(--amber)}
+.p-bad{background:var(--maroon-tint);color:var(--maroon)}
+.p-neutral{background:var(--slate-tint);color:var(--slate)}
+.chip{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;font-family:var(--sans);margin-inline-start:5px}
+.c-exc{background:var(--amber-tint);color:var(--amber)}
+.c-qa{background:var(--maroon-tint);color:var(--maroon)}
+.c-gcc{background:var(--gulf-tint);color:var(--gulf)}
+.c-res{background:#EEE9F4;color:#5B4B84}
+
+/* forms */
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:14px}
 .f{display:flex;flex-direction:column;gap:4px}
 .f label{font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .f input,.f select{border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:var(--card);width:100%}
-.f input:focus,.f select:focus{outline:2px solid var(--maroon);outline-offset:-1px;border-color:var(--maroon)}
+.f input:focus,.f select:focus{outline:2px solid var(--maroon);outline-offset:-1px}
 .f .hint{font-size:10px;color:var(--muted);font-family:var(--sans)}
-
-/* table */
-.scroll{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:940px}
-th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:end;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap;background:#FAFAF8;position:sticky;top:0}
-th:first-child{text-align:start}
-td{padding:6px 8px;border-bottom:1px solid var(--line-soft);text-align:end;font-family:var(--mono);font-size:13px;white-space:nowrap}
-td:first-child{text-align:start;font-family:var(--sans)}
-tbody tr:hover{background:#FBFBF9}
-td input,td select{border:1px solid transparent;border-radius:6px;padding:4px 6px;width:82px;text-align:end;background:#F7F8F5}
-td select{width:auto;text-align:start;font-family:var(--sans);font-size:12px}
-td input:hover,td select:hover{border-color:var(--line)}
-td input:focus,td select:focus{outline:2px solid var(--maroon);outline-offset:-1px;background:#fff}
-td.calc{font-weight:600}
-td.dim{color:var(--muted)}
-tfoot td{border-top:2px solid var(--line);border-bottom:0;font-weight:700;padding-top:10px}
-.pname{font-weight:600;display:block}
-.pname+small{color:var(--muted);font-size:11px}
-.del{color:var(--muted);width:22px;height:22px;border-radius:5px;line-height:1}
-.del:hover{background:var(--maroon-tint);color:var(--maroon)}
-.addrow{margin:10px 14px 14px;border:1px dashed var(--line);border-radius:8px;padding:9px 14px;color:var(--muted);font-weight:500;width:calc(100% - 28px)}
-.addrow:hover{border-color:var(--maroon);color:var(--maroon)}
-
-.chip{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;font-family:var(--sans)}
-.c-exc{background:var(--amber-tint);color:var(--amber)}
-.c-gcc{background:var(--gulf-tint);color:var(--gulf)}
-.c-qa{background:var(--maroon-tint);color:var(--maroon)}
-.gp-ok{color:var(--gulf)}
-.gp-thin{color:var(--amber)}
-.gp-bad{color:var(--maroon)}
+.act{background:var(--maroon);color:#fff;padding:9px 16px;border-radius:8px;font-weight:600}
+.act:hover{background:var(--maroon-deep)}
+.act:disabled{background:#C9CBC4;cursor:not-allowed}
+.act.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.act.sec:hover{background:#F7F8F5;border-color:var(--ink)}
+.act.sm{padding:5px 11px;font-size:12px;font-weight:600}
+.bar{padding:12px 14px;border-top:1px solid var(--line-soft);display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.bar .spacer{flex:1}
 
 /* cost stack */
-.stack{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
-.stack div{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;color:#fff;min-width:0;overflow:hidden}
-.s-fob{background:var(--slate)} .s-frt{background:var(--sand)} .s-dut{background:var(--gulf)}
-.s-exc{background:var(--amber)} .s-clr{background:#8E9299}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+.stack{display:flex;height:30px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.stack div{display:grid;place-items:center;color:#fff;font-family:var(--mono);font-size:11px;font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:12px;color:var(--muted)}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-inline-end:6px}
-.insight{background:var(--maroon-tint);border-inline-start:3px solid var(--maroon);padding:11px 13px;border-radius:0 8px 8px 0;margin-top:14px;font-size:13px;line-height:1.5}
-.insight b{color:var(--maroon-deep)}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:0 14px 14px}
-.kpi{border:1px solid var(--line);border-radius:8px;padding:11px}
-.kpi .v{font-family:var(--mono);font-size:21px;font-weight:600;letter-spacing:-.02em}
-.kpi .l{font-size:11px;color:var(--muted);margin-top:2px}
-.kpi.warn .v{color:var(--amber)}
-.kpi.bad .v{color:var(--maroon)}
 
-/* receipt gate + stock board */
-.rows{padding:0 0 6px}
-.grow{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:11px 14px;border-bottom:1px solid var(--line-soft);align-items:center}
-.grow .who{font-weight:600}
-.grow .who small{display:block;font-weight:400;color:var(--muted);font-family:var(--mono);font-size:11px}
-.verdict{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;white-space:nowrap}
-.v-pass{background:var(--gulf-tint);color:var(--gulf)}
-.v-hold{background:var(--amber-tint);color:var(--amber)}
-.v-rej{background:var(--maroon-tint);color:var(--maroon)}
-.bar{grid-column:1/-1;height:6px;border-radius:99px;background:var(--line-soft);overflow:hidden;margin-top:3px}
-.bar i{display:block;height:100%;border-radius:99px}
-.reason{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:2px}
-.slider{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
-.slider input[type=range]{flex:1;min-width:180px;accent-color:var(--maroon)}
+.note{background:var(--maroon-tint);border-inline-start:3px solid var(--maroon);padding:11px 13px;border-radius:0 8px 8px 0;margin:14px;font-size:13px;line-height:1.5}
 .foot{padding:12px 14px;color:var(--muted);font-size:11px;border-top:1px solid var(--line-soft);line-height:1.55}
-.hidden{display:none !important}
+.empty{padding:30px 16px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);margin-bottom:4px}
+.gline{height:5px;border-radius:99px;background:var(--line-soft);overflow:hidden;min-width:60px}
+.gline i{display:block;height:100%;border-radius:99px}
+.toast{position:fixed;inset-block-end:18px;inset-inline-start:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:9px;font-weight:500;z-index:50;box-shadow:0 6px 24px rgba(0,0,0,.22);max-width:90vw}
+.hidden{display:none!important}
 :focus-visible{outline:2px solid var(--maroon);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="shell">
-
-<header class="mast">
-  <div class="brand"><b>SUQ</b><span class="sub">Inventory &amp; Landed Cost</span></div>
-  <div class="spacer"></div>
-  <div class="tabs">
-    <button data-tab="ship" aria-pressed="true">Shipment costing</button>
-    <button data-tab="grn" aria-pressed="false">Goods receipt</button>
-    <button data-tab="stock" aria-pressed="false">Stock &amp; expiry</button>
-  </div>
-</header>
-
-<!-- ==================== SHIPMENT COSTING ==================== -->
-<div id="tab-ship">
-  <section class="card">
-    <h2>Shipment header <span class="tag" id="shipRef">SHP-2026-0312 · Doha</span></h2>
-    <div class="ctrls">
-      <div class="f"><label>Route</label>
-        <select id="route">
-          <option value="sea">Sea · Hamad Port</option>
-          <option value="land">Land · Abu Samra</option>
-          <option value="air">Air · HIA</option>
-          <option value="local">Local · Qatar supplier</option>
-        </select><span class="hint" id="routeHint"></span></div>
-      <div class="f"><label>USD → QAR</label><input id="fx" type="number" step="0.01" value="3.64"><span class="hint">Pegged rate</span></div>
-      <div class="f"><label>Freight QAR</label><input id="freight" type="number" value="18000"></div>
-      <div class="f"><label>Insurance QAR</label><input id="insurance" type="number" value="1400"></div>
-      <div class="f"><label>Clearing &amp; port</label><input id="clearing" type="number" value="4200"></div>
-      <div class="f"><label>Inland transport</label><input id="inland" type="number" value="1800"></div>
-      <div class="f"><label>Demurrage</label><input id="demurrage" type="number" value="0"><span class="hint">Port storage</span></div>
-      <div class="f"><label>Apportion by</label>
-        <select id="basis">
-          <option value="value">Value (CIF)</option>
-          <option value="weight">Gross weight</option>
-          <option value="units">Unit count</option>
-        </select><span class="hint">Changes every unit cost</span></div>
-      <div class="f"><label>Excise base</label>
-        <select id="excBase">
-          <option value="rsp">Declared retail price</option>
-          <option value="cif">CIF + duty</option>
-        </select><span class="hint">Verify with GTA</span></div>
-      <div class="f"><label>VAT scenario</label>
-        <select id="vatMode">
-          <option value="off">No VAT (today)</option>
-          <option value="absorb">VAT 5% · hold shelf price</option>
-          <option value="pass">VAT 5% · pass to customer</option>
-        </select></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>Shipment lines <span class="tag">edit any figure</span></h2>
-    <div class="scroll">
-      <table>
-        <thead><tr>
-          <th>Product</th><th>Qty</th><th>FOB USD/u</th><th>Kg/u</th><th>Duty %</th>
-          <th>Excise</th><th>Base QAR/u</th><th>Shelf QAR</th>
-          <th>Landed/u</th><th>GP %</th><th></th>
-        </tr></thead>
-        <tbody id="lineBody"></tbody>
-        <tfoot id="lineFoot"></tfoot>
-      </table>
-    </div>
-    <button class="addrow" id="addLine">+ Add a line</button>
-  </section>
-
-  <section class="card">
-    <h2>Where the money goes <span class="tag" id="stackTotal"></span></h2>
-    <div class="pad">
-      <div class="stack" id="stack"></div>
-      <div class="legend">
-        <span><i style="background:var(--slate)"></i>Goods (FOB)</span>
-        <span><i style="background:var(--sand)"></i>Freight &amp; insurance</span>
-        <span><i style="background:var(--gulf)"></i>Customs duty</span>
-        <span><i style="background:var(--amber)"></i>Excise tax</span>
-        <span><i style="background:#8E9299"></i>Clearing, inland, demurrage</span>
-      </div>
-      <div class="insight" id="insight"></div>
-    </div>
-    <div class="kpis" id="kpis"></div>
-    <div class="foot">
-      Duty is computed on CIF (FOB + apportioned freight and insurance). Excise is paid at import and capitalised into
-      stock — it never appears as a line on a customer receipt. Rates shown are defaults: GCC-origin goods and most
-      basic foodstuffs are entered at 0%, other goods at the 5% common external tariff. Confirm every HS code and the
-      excise valuation basis with the General Tax Authority and your clearing agent before relying on these figures.
-    </div>
-  </section>
-</div>
-
-<!-- ==================== GOODS RECEIPT ==================== -->
-<div id="tab-grn" class="hidden">
-  <section class="card">
-    <h2>Receiving gate <span class="tag" id="grnRef">GRN-2026-0891 · Al Wakra DC</span></h2>
-    <div class="slider">
-      <label for="slRule" style="font-weight:600">Minimum remaining shelf life on arrival</label>
-      <input type="range" id="slRule" min="40" max="90" step="5" value="75">
-      <span class="num" id="slRuleVal" style="font-weight:600">75%</span>
-    </div>
-    <div class="rows" id="grnRows"></div>
-    <div class="foot">
-      Qatar imports almost everything, so shelf life is consumed in transit before the goods reach the shelf. The gate
-      is applied at receipt, not at the shelf: a pallet that arrives with too little life left is a supplier claim
-      today and a write-off in six weeks. Chilled lines also fail on temperature, and meat and poultry fail on an
-      expired halal certificate regardless of condition.
-    </div>
-  </section>
-</div>
-
-<!-- ==================== STOCK & EXPIRY ==================== -->
-<div id="tab-stock" class="hidden">
-  <section class="card">
-    <h2>Stock cover &amp; expiry <span class="tag" id="stockCtx"></span></h2>
-    <div class="slider">
-      <label style="font-weight:600">Demand scenario</label>
-      <select id="season" style="border:1px solid var(--line);border-radius:7px;padding:7px 9px">
-        <option value="normal">Normal trading</option>
-        <option value="preram">Pre-Ramadan build (6 weeks out)</option>
-        <option value="ramadan">Ramadan</option>
-        <option value="summer">Summer exodus (Jun–Aug)</option>
-      </select>
-      <span class="num" id="seasonNote" style="color:var(--muted)"></span>
-    </div>
-    <div class="rows" id="stockRows"></div>
-    <div class="foot">
-      Lead times are route-dependent: local 2 days, Abu Samra land 7 days, air 4 days, Hamad Port sea 28 days. Order-by
-      dates work backwards from cover, which is why Ramadan procurement has to start six weeks early on sea freight.
-      Because Ramadan moves roughly eleven days earlier each Gregorian year, comparatives run on the Hijri calendar —
-      "same week last year" is the wrong baseline in this market.
-    </div>
-  </section>
-</div>
-
-<p class="foot" style="border:0;padding:14px 2px">
-  Prototype with sample data. Figures are illustrative and are not tax, customs or pricing advice.
-</p>
+  <header class="mast">
+    <div class="brand"><b>SUQ</b><span>Inventory Management</span></div>
+    <div class="spacer"></div>
+    <button class="ghost" id="reset">Reset demo data</button>
+  </header>
+  <nav id="nav"></nav>
+  <main id="view"></main>
+  <p class="foot" style="border:0;padding:14px 2px">
+    Demo with sample data held in memory — refreshing the page restores the starting state. Figures are illustrative
+    and are not tax, customs or pricing advice. Tax position reflects Qatar as at August 2026: no VAT enacted, excise
+    live and levied at import.
+  </p>
 </div>
 
 <script>
 "use strict";
-const $ = id => document.getElementById(id);
-const n2 = v => (Math.round(v*100)/100).toFixed(2);
-const n0 = v => Math.round(v).toLocaleString("en-US");
+/* ============================ helpers ============================ */
+const $  = s => document.querySelector(s);
+const n2 = v => (Math.round((v||0)*100)/100).toFixed(2);
+const n0 = v => Math.round(v||0).toLocaleString("en-US");
+const qar = v => "QAR " + n0(v);
+const today = () => new Date();
+const addDays = d => { const x = new Date(); x.setDate(x.getDate()+d); return x; };
+const fmt = dt => dt.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"});
+const uid = p => p + "-" + Math.random().toString(36).slice(2,7).toUpperCase();
+function toast(msg){
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
 
-/* ---------------- data ---------------- */
-const EXCISE = {none:0, carb:0.5, energy:1.0, tobacco:1.0, special:1.0};
+const EXCISE = {none:0, carb:.5, energy:1, tobacco:1, special:1};
 const EXC_LABEL = {none:"—", carb:"Carbonated 50%", energy:"Energy 100%", tobacco:"Tobacco 100%", special:"Special 100%"};
 const ROUTES = {
-  sea:{lead:28, hint:"28-day lead time"},
-  land:{lead:7,  hint:"7-day lead time"},
-  air:{lead:4,  hint:"4-day lead, high freight"},
-  local:{lead:2, hint:"2 days, no duty or freight"}
+  sea:{label:"Sea · Hamad Port", lead:28},
+  land:{label:"Land · Abu Samra", lead:7},
+  air:{label:"Air · HIA", lead:4},
+  local:{label:"Local · Qatar", lead:2}
 };
+const WASTE_REASONS = ["Expired","Damaged in handling","Temperature excursion","Customer return","Preparation waste","Theft / unaccounted"];
+const FX = 3.64;
 
-let LINES = [
-  {name:"Basmati Rice 5kg",      ar:"أرز بسمتي", org:"India",   qty:400,  fob:6.20, kg:5.20, duty:0, exc:"none",    base:0,     shelf:42},
-  {name:"Sunflower Oil 1.8L",    ar:"زيت دوار الشمس", org:"Türkiye", qty:300, fob:2.90, kg:1.90, duty:0, exc:"none", base:0,     shelf:19},
-  {name:"Cheddar Block 1kg",     ar:"جبن شيدر", org:"New Zealand", qty:150, fob:7.40, kg:1.05, duty:0, exc:"none", base:0,      shelf:46},
-  {name:"Cola Can 330ml",        ar:"كولا",     org:"Saudi Arabia (GCC)", qty:4800, fob:0.16, kg:0.36, duty:0, exc:"carb",   base:1.20, shelf:2.50},
-  {name:"Energy Drink 250ml",    ar:"مشروب طاقة", org:"Austria", qty:2400, fob:0.60, kg:0.30, duty:5, exc:"energy", base:5.00, shelf:12.00},
-  {name:"Cigarettes 20s",        ar:"سجائر",    org:"Switzerland", qty:1000, fob:0.85, kg:0.03, duty:5, exc:"tobacco",base:11.00,shelf:25.00}
-];
+/* ============================ seed data ============================ */
+let DB;
+function seed(){
+  DB = {
+    suppliers:[
+      {id:"SUP1", name:"Baladna Food Industries",  ar:"بلدنا",        origin:"Qatar",        route:"local", cr:"CR-40219", cert:"Food safety", certDays:88,  terms:"30 days", onTime:96},
+      {id:"SUP2", name:"Widam Food Company",       ar:"ودام",         origin:"Qatar",        route:"local", cr:"CR-11884", cert:"Halal",       certDays:212, terms:"45 days", onTime:91},
+      {id:"SUP3", name:"Al Rawabi Trading",        ar:"الروابي",       origin:"Saudi Arabia", route:"land",  cr:"CR-77302", cert:"Halal",       certDays:34,  terms:"60 days", onTime:78},
+      {id:"SUP4", name:"Sunrise Foods Pvt Ltd",    ar:"صن رايز",       origin:"India",        route:"sea",   cr:"IEC-99120",cert:"Food safety", certDays:151, terms:"LC at sight", onTime:84},
+      {id:"SUP5", name:"Gulf Frozen Imports",      ar:"الخليج للمجمدات",origin:"Brazil",      route:"sea",   cr:"CR-55010", cert:"Halal",       certDays:-6,  terms:"30 days", onTime:69}
+    ],
+    products:[
+      {id:"P1", sku:"BEV-COLA-330", en:"Cola Can 330ml",       ar:"كولا ٣٣٠ مل",    cat:"Drinks", uom:"can",  kg:0.36, origin:"Saudi Arabia", exc:"carb",    excBase:1.20, duty:0, res:null,      sup:"SUP3", reorder:1800, retail:2.50},
+      {id:"P2", sku:"BEV-NRG-250",  en:"Energy Drink 250ml",   ar:"مشروب طاقة",     cat:"Drinks", uom:"can",  kg:0.30, origin:"Austria",      exc:"energy",  excBase:5.00, duty:5, res:null,      sup:"SUP3", reorder:900,  retail:12.00},
+      {id:"P3", sku:"TOB-CIG-20",   en:"Cigarettes 20s",       ar:"سجائر ٢٠",       cat:"Tobacco",uom:"pack", kg:0.03, origin:"Switzerland",  exc:"tobacco", excBase:11.00,duty:5, res:"Age 18+", sup:"SUP3", reorder:400,  retail:25.00},
+      {id:"P4", sku:"DRY-RICE-5K",  en:"Basmati Rice 5kg",     ar:"أرز بسمتي ٥ كجم", cat:"Pantry", uom:"bag",  kg:5.20, origin:"India",        exc:"none",    excBase:0,    duty:0, res:null,      sup:"SUP4", reorder:250,  retail:42.00},
+      {id:"P5", sku:"DRY-OIL-18",   en:"Sunflower Oil 1.8L",   ar:"زيت دوار الشمس",  cat:"Pantry", uom:"btl",  kg:1.90, origin:"Türkiye",      exc:"none",    excBase:0,    duty:0, res:null,      sup:"SUP4", reorder:220,  retail:19.00},
+      {id:"P6", sku:"DRY-DATE-1K",  en:"Khalas Dates 1kg",     ar:"تمر خلاص ١ كجم",  cat:"Pantry", uom:"box",  kg:1.05, origin:"Qatar",        exc:"none",    excBase:0,    duty:0, res:null,      sup:"SUP1", reorder:150,  retail:35.00},
+      {id:"P7", sku:"CHL-MILK-1L",  en:"Fresh Milk 1L",        ar:"حليب طازج ١ لتر", cat:"Chilled",uom:"btl",  kg:1.04, origin:"Qatar",        exc:"none",    excBase:0,    duty:0, res:null,      sup:"SUP1", reorder:400,  retail:6.50},
+      {id:"P8", sku:"CHL-CHED-1K",  en:"Cheddar Block 1kg",    ar:"جبن شيدر",        cat:"Chilled",uom:"blk",  kg:1.05, origin:"New Zealand",  exc:"none",    excBase:0,    duty:0, res:null,      sup:"SUP4", reorder:80,   retail:46.00},
+      {id:"P9", sku:"MET-LAMB-KG",  en:"Lamb Chops",           ar:"ريش غنم",         cat:"Meat",   uom:"kg",   kg:1.00, origin:"Qatar",        exc:"none",    excBase:0,    duty:0, res:"Halal",   sup:"SUP2", reorder:120,  retail:48.00},
+      {id:"P10",sku:"FRZ-FRIES-25", en:"Frozen Fries 2.5kg",   ar:"بطاطس مجمدة",     cat:"Frozen", uom:"bag",  kg:2.60, origin:"Belgium",      exc:"none",    excBase:0,    duty:0, res:null,      sup:"SUP5", reorder:180,  retail:28.00}
+    ],
+    lots:[], pos:[], moves:[], counts:[]
+  };
+  // opening stock
+  const open = [
+    ["P1", 5200, 0.92,  290], ["P2", 820, 11.40, 240], ["P3", 260, 23.10, 400],
+    ["P4", 640, 27.80,  520], ["P5", 310, 12.60, 300], ["P6", 180, 21.40, 210],
+    ["P7", 520, 4.10,     5], ["P8", 88, 31.20,   23], ["P9", 96, 34.50,    9],
+    ["P10",310, 19.80,  180]
+  ];
+  open.forEach(([pid, qty, cost, exp]) => {
+    const p = DB.products.find(x => x.id === pid);
+    const excU = (EXCISE[p.exc]||0) * p.excBase;
+    DB.lots.push({id:uid("LOT"), pid, qty, unitCost:cost, excU, recv:addDays(-30), exp:addDays(exp), grn:"opening"});
+    DB.moves.push({id:uid("MV"), date:addDays(-30), type:"Opening", pid, qty, value:qty*cost, ref:"Opening balance"});
+  });
+  // one PO already sitting in transit, ready to receive
+  DB.pos.push({
+    id:"PO-2026-0141", sup:"SUP4", status:"In transit", created:addDays(-24), route:"sea", basis:"value",
+    charges:{freight:18000, insurance:1400, clearing:4200, inland:1800, demurrage:0},
+    lines:[
+      {pid:"P4", qty:400, fob:6.20},
+      {pid:"P5", qty:300, fob:2.90},
+      {pid:"P8", qty:150, fob:7.40}
+    ]
+  });
+}
+seed();
 
-const GRN = [
-  {name:"Cheddar Block 1kg", lot:"NZ-4471", life:180, used:96,  temp:3.4, band:[0,5], halal:null},
-  {name:"Chicken Breast IQF", lot:"BR-2209", life:365, used:118, temp:-19.2, band:[-25,-18], halal:212},
-  {name:"Basmati Rice 5kg",  lot:"IN-8830", life:730, used:141, temp:null, band:null, halal:null},
-  {name:"Lamb Carcass",      lot:"AU-1174", life:120, used:52,  temp:2.1, band:[0,4], halal:-6},
-  {name:"Fresh Yoghurt 1kg", lot:"QA-0031", life:21,  used:2,   temp:4.9, band:[0,5], halal:null},
-  {name:"Frozen Fries 2.5kg",lot:"BE-6620", life:540, used:302, temp:-15.4, band:[-25,-18], halal:null}
-];
+const prod = id => DB.products.find(p => p.id === id);
+const sup  = id => DB.suppliers.find(s => s.id === id);
+const onHand = pid => DB.lots.filter(l => l.pid === pid).reduce((a,l) => a + l.qty, 0);
+const stockValue = pid => DB.lots.filter(l => l.pid === pid).reduce((a,l) => a + l.qty * l.unitCost, 0);
+const wac = pid => { const q = onHand(pid); return q ? stockValue(pid)/q : 0; };
+const exciseHeld = pid => DB.lots.filter(l => l.pid === pid).reduce((a,l) => a + l.qty * (l.excU||0), 0);
+const daysTo = d => Math.round((d - today()) / 86400000);
 
-const STOCK = [
-  {name:"Khalas Dates 1kg",   cat:"ramadan", onhand:180,  daily:12,  expiry:210, route:"local"},
-  {name:"Basmati Rice 5kg",   cat:"staple",  onhand:640,  daily:26,  expiry:520, route:"sea"},
-  {name:"Vimto Cordial 710ml",cat:"ramadan", onhand:95,   daily:6,   expiry:400, route:"sea"},
-  {name:"Fresh Yoghurt 1kg",  cat:"chilled", onhand:210,  daily:64,  expiry:6,   route:"local"},
-  {name:"Cheddar Block 1kg",  cat:"chilled", onhand:88,   daily:9,   expiry:23,  route:"air"},
-  {name:"Cola Can 330ml",     cat:"drinks",  onhand:5200, daily:210, expiry:290, route:"land"},
-  {name:"Frozen Fries 2.5kg", cat:"frozen",  onhand:310,  daily:22,  expiry:180, route:"sea"}
-];
-const SEASON = {
-  normal:{label:"baseline", f:{ramadan:1, staple:1, chilled:1, drinks:1, frozen:1}},
-  preram:{label:"stock build before the fast", f:{ramadan:3.4, staple:1.8, chilled:1.2, drinks:1.3, frozen:1.4}},
-  ramadan:{label:"daytime trade collapses, evening peaks", f:{ramadan:2.6, staple:1.5, chilled:1.4, drinks:1.8, frozen:1.3}},
-  summer:{label:"residents travel, covers fall", f:{ramadan:0.6, staple:0.7, chilled:0.65, drinks:0.9, frozen:0.75}}
-};
-
-/* ---------------- shipment engine ---------------- */
-function calc(){
-  const fx   = +$("fx").value || 3.64;
-  const route= $("route").value;
-  const isLocal = route === "local";
-  const frt  = isLocal ? 0 : +$("freight").value || 0;
-  const ins  = isLocal ? 0 : +$("insurance").value || 0;
-  const clr  = (+$("clearing").value||0) + (+$("inland").value||0) + (+$("demurrage").value||0);
-  const basis= $("basis").value;
-  const eb   = $("excBase").value;
-  const vat  = $("vatMode").value;
-
-  const rows = LINES.map(l => ({...l, fobQ: l.fob * fx * l.qty, wt: l.kg * l.qty, units: l.qty}));
-  const key  = basis === "value" ? "fobQ" : basis === "weight" ? "wt" : "units";
-  const denom= rows.reduce((a,r) => a + r[key], 0) || 1;
-
-  let T = {fob:0, frtins:0, duty:0, exc:0, clr:0, retail:0, landed:0};
-
+/* ============================ landed cost engine ============================ */
+function landed(po){
+  const c = po.charges, isLocal = po.route === "local";
+  const frt = isLocal ? 0 : (c.freight||0) + (c.insurance||0);
+  const other = (c.clearing||0) + (c.inland||0) + (c.demurrage||0);
+  const rows = po.lines.map(l => {
+    const p = prod(l.pid);
+    return {...l, p, fobQ: l.fob * FX * l.qty, wt: p.kg * l.qty, units: l.qty};
+  });
+  const key = po.basis === "weight" ? "wt" : po.basis === "units" ? "units" : "fobQ";
+  const denom = rows.reduce((a,r) => a + r[key], 0) || 1;
+  const T = {fob:0, frt:0, duty:0, exc:0, oth:0, total:0};
   rows.forEach(r => {
     const share = r[key] / denom;
-    r.frtins = (frt + ins) * share;
-    r.cif    = r.fobQ + r.frtins;
-    r.duty   = isLocal ? 0 : r.cif * (r.duty0 = (+r.duty || 0)) / 100;
-    r.clr    = clr * share;
-    const rate = EXCISE[r.exc] || 0;
-    r.excise = rate === 0 ? 0
-             : eb === "rsp" ? (+r.base || 0) * rate * r.qty
-                            : (r.cif + r.duty) * rate;
-    r.total  = r.fobQ + r.frtins + r.duty + r.excise + r.clr;
-    r.unit   = r.total / r.qty;
-
-    const net = vat === "absorb" ? r.shelf / 1.05 : r.shelf;
-    r.net = net;
-    r.gp  = net > 0 ? (net - r.unit) / net * 100 : 0;
-
-    T.fob += r.fobQ; T.frtins += r.frtins; T.duty += r.duty;
-    T.exc += r.excise; T.clr += r.clr;
-    T.retail += net * r.qty; T.landed += r.total;
+    r.frtA = frt * share;
+    r.cif  = r.fobQ + r.frtA;
+    r.dutyA = isLocal ? 0 : r.cif * (r.p.duty||0) / 100;
+    r.othA = other * share;
+    const rate = EXCISE[r.p.exc] || 0;
+    r.excA = rate * (r.p.excBase||0) * r.qty;
+    r.excU = rate * (r.p.excBase||0);
+    r.total = r.fobQ + r.frtA + r.dutyA + r.excA + r.othA;
+    r.unit  = r.total / (r.qty || 1);
+    r.gp    = r.p.retail ? (r.p.retail - r.unit) / r.p.retail * 100 : 0;
+    T.fob += r.fobQ; T.frt += r.frtA; T.duty += r.dutyA; T.exc += r.excA; T.oth += r.othA; T.total += r.total;
   });
-  return {rows, T, isLocal, vat};
+  return {rows, T};
+}
+function stackHtml(T){
+  const seg = [["var(--slate)",T.fob],["var(--sand)",T.frt],["var(--gulf)",T.duty],["var(--amber)",T.exc],["#8E9299",T.oth]];
+  return `<div class="stack">${seg.map(([c,v]) => {
+    const pct = T.total ? v/T.total*100 : 0;
+    return pct < 0.6 ? "" : `<div style="width:${pct}%;background:${c}" title="${qar(v)}">${pct>8?pct.toFixed(0)+"%":""}</div>`;
+  }).join("")}</div>
+  <div class="legend">
+    <span><i style="background:var(--slate)"></i>Goods ${qar(T.fob)}</span>
+    <span><i style="background:var(--sand)"></i>Freight &amp; insurance ${qar(T.frt)}</span>
+    <span><i style="background:var(--gulf)"></i>Duty ${qar(T.duty)}</span>
+    <span><i style="background:var(--amber)"></i>Excise ${qar(T.exc)}</span>
+    <span><i style="background:#8E9299"></i>Clearing &amp; inland ${qar(T.oth)}</span>
+  </div>`;
+}
+function chips(p){
+  let s = "";
+  if(p.exc !== "none") s += `<span class="chip c-exc">${EXC_LABEL[p.exc]}</span>`;
+  if(p.origin === "Qatar") s += `<span class="chip c-qa">Made in Qatar</span>`;
+  else if(/Saudi|Emirates|Kuwait|Bahrain|Oman/.test(p.origin)) s += `<span class="chip c-gcc">GCC origin</span>`;
+  if(p.res) s += `<span class="chip c-res">${p.res}</span>`;
+  return s;
+}
+function expiryPill(d){
+  const k = daysTo(d);
+  if(k < 0)  return `<span class="p p-bad">expired</span>`;
+  if(k <= 14) return `<span class="p p-bad">${k}d</span>`;
+  if(k <= 45) return `<span class="p p-warn">${k}d</span>`;
+  return `<span class="p p-ok">${k}d</span>`;
 }
 
-function gpClass(g){ return g < 8 ? "gp-bad" : g < 20 ? "gp-thin" : "gp-ok"; }
+/* ============================ views ============================ */
+const VIEWS = {};
 
-function renderShip(){
-  const {rows, T, isLocal, vat} = calc();
-  $("routeHint").textContent = ROUTES[$("route").value].hint;
-  ["freight","insurance"].forEach(id => $(id).disabled = isLocal);
+VIEWS.dashboard = () => {
+  const value  = DB.products.reduce((a,p) => a + stockValue(p.id), 0);
+  const excise = DB.products.reduce((a,p) => a + exciseHeld(p.id), 0);
+  const below  = DB.products.filter(p => onHand(p.id) < p.reorder);
+  const risk   = DB.lots.filter(l => daysTo(l.exp) <= 30);
+  const riskV  = risk.reduce((a,l) => a + l.qty * l.unitCost, 0);
+  const open   = DB.pos.filter(p => p.status !== "Received" && p.status !== "Draft");
+  const certs  = DB.suppliers.filter(s => s.certDays < 30);
 
-  $("lineBody").innerHTML = rows.map((r,i) => {
-    const chips = [];
-    if(r.exc !== "none") chips.push(`<span class="chip c-exc">${EXC_LABEL[r.exc]}</span>`);
-    if(/GCC/.test(r.org)) chips.push(`<span class="chip c-gcc">GCC origin</span>`);
-    if(/Qatar/.test(r.org)) chips.push(`<span class="chip c-qa">Made in Qatar</span>`);
-    return `<tr>
-      <td><span class="pname">${r.name}</span><small>${r.ar} · ${r.org}</small> ${chips.join(" ")}</td>
-      <td><input data-i="${i}" data-k="qty"   type="number" value="${r.qty}"></td>
-      <td><input data-i="${i}" data-k="fob"   type="number" step="0.01" value="${r.fob}"></td>
-      <td><input data-i="${i}" data-k="kg"    type="number" step="0.01" value="${r.kg}"></td>
-      <td><input data-i="${i}" data-k="duty"  type="number" step="0.5"  value="${r.duty0 ?? r.duty}" ${isLocal?"disabled":""} style="width:56px"></td>
-      <td><select data-i="${i}" data-k="exc">${Object.keys(EXC_LABEL).map(k =>
-            `<option value="${k}" ${r.exc===k?"selected":""}>${EXC_LABEL[k]}</option>`).join("")}</select></td>
-      <td><input data-i="${i}" data-k="base"  type="number" step="0.25" value="${r.base}" ${r.exc==="none"?"disabled":""} style="width:66px"></td>
-      <td><input data-i="${i}" data-k="shelf" type="number" step="0.25" value="${r.shelf}" style="width:70px"></td>
-      <td class="calc">${n2(r.unit)}</td>
-      <td class="calc ${gpClass(r.gp)}">${r.gp.toFixed(1)}%</td>
-      <td><button class="del" data-del="${i}" aria-label="Remove line">×</button></td>
-    </tr>`;
-  }).join("");
+  return `
+  <div class="kpis">
+    <div class="kpi"><div class="v">${qar(value)}</div><div class="l">Stock at landed cost</div></div>
+    <div class="kpi ${excise/value > .2 ? "warn":""}"><div class="v">${qar(excise)}</div><div class="l">Excise capital held in stock</div></div>
+    <div class="kpi ${below.length?"bad":"good"}"><div class="v">${below.length}</div><div class="l">Lines below reorder point</div></div>
+    <div class="kpi ${riskV>3000?"warn":""}"><div class="v">${qar(riskV)}</div><div class="l">Value expiring within 30 days</div></div>
+    <div class="kpi"><div class="v">${open.length}</div><div class="l">Purchase orders in transit</div></div>
+    <div class="kpi ${certs.length?"bad":"good"}"><div class="v">${certs.length}</div><div class="l">Supplier certificates lapsing</div></div>
+  </div>
 
-  const grand = T.fob + T.frtins + T.duty + T.exc + T.clr;
-  $("lineFoot").innerHTML = `<tr>
-    <td>Shipment total</td><td>${n0(rows.reduce((a,r)=>a+r.qty,0))}</td>
-    <td colspan="6" class="dim">FOB ${n0(T.fob)} · freight+ins ${n0(T.frtins)} · duty ${n0(T.duty)} · excise ${n0(T.exc)} · clearing ${n0(T.clr)}</td>
-    <td>${n0(grand)}</td>
-    <td class="${gpClass((T.retail-T.landed)/T.retail*100)}">${((T.retail-T.landed)/T.retail*100).toFixed(1)}%</td><td></td></tr>`;
-
-  const seg = [["s-fob",T.fob,"Goods"],["s-frt",T.frtins,"Freight"],["s-dut",T.duty,"Duty"],["s-exc",T.exc,"Excise"],["s-clr",T.clr,"Clearing"]];
-  $("stack").innerHTML = seg.map(([c,v]) => {
-    const pct = grand ? v/grand*100 : 0;
-    return pct < 0.6 ? "" : `<div class="${c}" style="width:${pct}%" title="QAR ${n0(v)}">${pct>7?pct.toFixed(0)+"%":""}</div>`;
-  }).join("");
-  $("stackTotal").textContent = "QAR " + n0(grand) + " committed";
-
-  const excPct = grand ? T.exc/grand*100 : 0;
-  const thin = rows.filter(r => r.gp < 20);
-  $("insight").innerHTML = T.exc > 0
-    ? `<b>QAR ${n0(T.exc)} of this shipment — ${excPct.toFixed(0)}% — is excise tax paid at the border before a single unit sells.</b>
-       That is working capital locked in stock, and it is the reason excise categories need faster turns than the rest of
-       the range. Excise belongs in landed cost and margin reporting; it must never be shown as a line on a customer receipt.`
-    : `<b>No excise exposure on this shipment.</b> Duty and freight are the whole story here, so the apportionment basis
-       you choose above is what decides each unit's true cost.`;
-
-  const vatNote = vat === "absorb"
-    ? {cls:"warn", v:(rows.reduce((a,r)=>a+r.gp,0)/rows.length).toFixed(1)+"%", l:"Avg GP if you hold shelf prices on VAT day"}
-    : vat === "pass"
-    ? {cls:"", v:(rows.reduce((a,r)=>a+r.gp,0)/rows.length).toFixed(1)+"%", l:"Avg GP with VAT added to shelf prices"}
-    : {cls:"", v:(rows.reduce((a,r)=>a+r.gp,0)/rows.length).toFixed(1)+"%", l:"Average gross profit across lines"};
-
-  $("kpis").innerHTML = [
-    {v:"QAR "+n0(grand), l:"Total landed cost"},
-    {v:"QAR "+n0(T.retail), l:vat==="absorb"?"Net retail value (VAT stripped)":"Retail value at shelf price"},
-    vatNote,
-    {v:(grand? (T.exc+T.duty)/grand*100 :0).toFixed(0)+"%", l:"Share of cost that is tax", cls:(T.exc+T.duty)/grand>0.3?"bad":""},
-    {v:thin.length, l:"Lines under 20% GP", cls:thin.length?"warn":""}
-  ].map(k => `<div class="kpi ${k.cls||""}"><div class="v">${k.v}</div><div class="l">${k.l}</div></div>`).join("");
-
-  document.querySelectorAll("#lineBody input, #lineBody select").forEach(el => {
-    el.oninput = () => {
-      const l = LINES[+el.dataset.i], k = el.dataset.k;
-      l[k] = k === "exc" ? el.value : (+el.value || 0);
-      renderShip();
-      if(k !== "exc"){ const again = document.querySelector(`[data-i="${el.dataset.i}"][data-k="${k}"]`); if(again){ again.focus(); again.setSelectionRange?.(9999,9999); } }
-    };
-  });
-  document.querySelectorAll("[data-del]").forEach(b =>
-    b.onclick = () => { LINES.splice(+b.dataset.del,1); renderShip(); });
-}
-
-$("addLine").onclick = () => {
-  LINES.push({name:"New line", ar:"صنف جديد", org:"—", qty:100, fob:1.00, kg:1.00, duty:5, exc:"none", base:0, shelf:10});
-  renderShip();
+  <section class="card">
+    <h2>Needs attention today</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Item</th><th>Issue</th><th>Detail</th><th>Action</th></tr></thead>
+      <tbody>
+      ${certs.map(s => `<tr><td><span class="pn">${s.name}</span><small>${s.ar}</small></td>
+        <td><span class="p p-bad">Certificate</span></td>
+        <td>${s.cert} ${s.certDays < 0 ? `expired ${Math.abs(s.certDays)}d ago` : `expires in ${s.certDays}d`}</td>
+        <td>Block receiving until renewed</td></tr>`).join("")}
+      ${risk.slice(0,5).map(l => { const p = prod(l.pid); return `<tr>
+        <td><span class="pn">${p.en}</span><small>${l.id}</small></td>
+        <td><span class="p ${daysTo(l.exp)<=14?"p-bad":"p-warn"}">Expiry</span></td>
+        <td>${n0(l.qty)} ${p.uom} · ${fmt(l.exp)} · ${qar(l.qty*l.unitCost)} at risk</td>
+        <td>Mark down or write off</td></tr>`; }).join("")}
+      ${below.slice(0,5).map(p => `<tr>
+        <td><span class="pn">${p.en}</span><small>${p.sku}</small></td>
+        <td><span class="p p-warn">Reorder</span></td>
+        <td>${n0(onHand(p.id))} on hand vs ${n0(p.reorder)} reorder point · ${ROUTES[sup(p.sup).route].lead}d lead</td>
+        <td>Raise a purchase order</td></tr>`).join("")}
+      </tbody>
+    </table></div>
+    <div class="foot">
+      Excise sits in stock value because it is paid at import, not at the till. A high excise share means working
+      capital is locked at the border, which is why those categories need faster turns than the rest of the range.
+    </div>
+  </section>`;
 };
-["fx","freight","insurance","clearing","inland","demurrage","basis","excBase","vatMode","route"]
-  .forEach(id => $(id).oninput = renderShip);
 
-/* ---------------- goods receipt gate ---------------- */
-function renderGrn(){
-  const rule = +$("slRule").value;
-  $("slRuleVal").textContent = rule + "%";
-  $("grnRows").innerHTML = GRN.map(g => {
-    const remain = Math.max(0, (g.life - g.used) / g.life * 100);
+VIEWS.products = () => `
+  <section class="card">
+    <h2>Product master <span class="tag">${DB.products.length} lines · click a figure to edit</span></h2>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>Product</th><th>Category</th><th>On hand</th><th>Reorder</th><th>Cover</th>
+        <th>Avg cost</th><th>Retail</th><th>GP %</th><th>Stock value</th><th>Excise held</th>
+      </tr></thead>
+      <tbody>${DB.products.map(p => {
+        const q = onHand(p.id), c = wac(p.id);
+        const gp = p.retail ? (p.retail - c)/p.retail*100 : 0;
+        const pct = Math.min(100, p.reorder ? q/(p.reorder*2)*100 : 100);
+        const col = q < p.reorder ? "var(--maroon)" : q < p.reorder*1.4 ? "var(--amber)" : "var(--gulf)";
+        return `<tr>
+          <td><span class="pn">${p.en}${chips(p)}</span><small>${p.ar} · ${p.sku} · ${p.origin}</small></td>
+          <td style="text-align:start;font-family:var(--sans)">${p.cat}</td>
+          <td>${n0(q)} <small style="color:var(--muted)">${p.uom}</small><div class="gline"><i style="width:${pct}%;background:${col}"></i></div></td>
+          <td><input type="number" data-edit="reorder" data-id="${p.id}" value="${p.reorder}" style="width:66px"></td>
+          <td>${q < p.reorder ? `<span class="p p-bad">below</span>` : `<span class="p p-ok">ok</span>`}</td>
+          <td>${n2(c)}</td>
+          <td><input type="number" step="0.25" data-edit="retail" data-id="${p.id}" value="${p.retail}" style="width:66px"></td>
+          <td class="${gp<8?"":""}" style="font-weight:600;color:${gp<8?"var(--maroon)":gp<20?"var(--amber)":"var(--gulf)"}">${gp.toFixed(1)}%</td>
+          <td>${n0(stockValue(p.id))}</td>
+          <td>${exciseHeld(p.id) ? n0(exciseHeld(p.id)) : "—"}</td>
+        </tr>`;
+      }).join("")}</tbody>
+      <tfoot><tr><td>Totals</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        <td>${n0(DB.products.reduce((a,p)=>a+stockValue(p.id),0))}</td>
+        <td>${n0(DB.products.reduce((a,p)=>a+exciseHeld(p.id),0))}</td></tr></tfoot>
+    </table></div>
+    <div class="foot">
+      Arabic names are a required peer field, not a translation layer — a product with no Arabic name cannot go on a
+      shelf label. Excise class and country of origin drive cost, not just merchandising.
+    </div>
+  </section>`;
+
+VIEWS.suppliers = () => `
+  <section class="card">
+    <h2>Suppliers <span class="tag">${DB.suppliers.length} active</span></h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Supplier</th><th>Origin</th><th>Route</th><th>Lead</th><th>Terms</th><th>On time</th><th>Certificate</th><th>Lines</th></tr></thead>
+      <tbody>${DB.suppliers.map(s => {
+        const lines = DB.products.filter(p => p.sup === s.id).length;
+        const cert = s.certDays < 0 ? `<span class="p p-bad">expired ${Math.abs(s.certDays)}d</span>`
+                   : s.certDays < 30 ? `<span class="p p-warn">${s.certDays}d left</span>`
+                   : `<span class="p p-ok">${s.certDays}d left</span>`;
+        return `<tr>
+          <td><span class="pn">${s.name}</span><small>${s.ar} · ${s.cr}</small></td>
+          <td style="text-align:start;font-family:var(--sans)">${s.origin}</td>
+          <td style="text-align:start;font-family:var(--sans)">${ROUTES[s.route].label}</td>
+          <td>${ROUTES[s.route].lead}d</td>
+          <td style="text-align:start;font-family:var(--sans)">${s.terms}</td>
+          <td><span style="color:${s.onTime<80?"var(--maroon)":s.onTime<90?"var(--amber)":"var(--gulf)"};font-weight:600">${s.onTime}%</span></td>
+          <td>${s.cert} ${cert}</td>
+          <td>${lines}</td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table></div>
+    <div class="foot">
+      An expired halal or food-safety certificate blocks receiving from that supplier entirely — try receiving the
+      frozen line from Gulf Frozen Imports and the gate will refuse it regardless of the condition of the goods.
+    </div>
+  </section>`;
+
+/* -------- purchasing -------- */
+let draft = null;
+VIEWS.purchasing = () => {
+  if(!draft) draft = {id:uid("PO"), sup:"SUP4", status:"Draft", created:today(), route:"sea", basis:"value",
+    charges:{freight:0, insurance:0, clearing:0, inland:0, demurrage:0}, lines:[]};
+  const s = sup(draft.sup);
+  draft.route = s.route;
+  const L = landed(draft);
+
+  return `
+  <section class="card">
+    <h2>New purchase order <span class="tag">${draft.id}</span></h2>
+    <div class="form">
+      <div class="f"><label>Supplier</label>
+        <select data-po="sup">${DB.suppliers.map(x => `<option value="${x.id}" ${draft.sup===x.id?"selected":""}>${x.name}</option>`).join("")}</select>
+        <span class="hint">${ROUTES[s.route].label} · ${ROUTES[s.route].lead}-day lead${s.certDays<0?" · certificate expired":""}</span></div>
+      <div class="f"><label>Freight QAR</label><input type="number" data-po="freight" value="${draft.charges.freight}" ${s.route==="local"?"disabled":""}></div>
+      <div class="f"><label>Insurance</label><input type="number" data-po="insurance" value="${draft.charges.insurance}" ${s.route==="local"?"disabled":""}></div>
+      <div class="f"><label>Clearing &amp; port</label><input type="number" data-po="clearing" value="${draft.charges.clearing}"></div>
+      <div class="f"><label>Inland transport</label><input type="number" data-po="inland" value="${draft.charges.inland}"></div>
+      <div class="f"><label>Demurrage</label><input type="number" data-po="demurrage" value="${draft.charges.demurrage}"></div>
+      <div class="f"><label>Apportion by</label>
+        <select data-po="basis">
+          <option value="value" ${draft.basis==="value"?"selected":""}>Value (CIF)</option>
+          <option value="weight" ${draft.basis==="weight"?"selected":""}>Gross weight</option>
+          <option value="units" ${draft.basis==="units"?"selected":""}>Unit count</option>
+        </select><span class="hint">Changes every unit cost</span></div>
+      <div class="f"><label>Add a line</label>
+        <select data-po="add"><option value="">Choose a product…</option>
+          ${DB.products.filter(p => p.sup === draft.sup && !draft.lines.some(l => l.pid === p.id))
+            .map(p => `<option value="${p.id}">${p.en}</option>`).join("")}</select>
+        <span class="hint">Filtered to this supplier</span></div>
+    </div>
+
+    ${draft.lines.length ? `
+    <div class="scroll"><table>
+      <thead><tr><th>Product</th><th>Qty</th><th>FOB USD/u</th><th>Freight</th><th>Duty</th><th>Excise</th><th>Landed/u</th><th>GP %</th><th>Line total</th><th></th></tr></thead>
+      <tbody>${L.rows.map((r,i) => `<tr>
+        <td><span class="pn">${r.p.en}${chips(r.p)}</span><small>${r.p.sku} · ${r.p.kg}kg each</small></td>
+        <td><input type="number" data-line="qty" data-i="${i}" value="${r.qty}" style="width:70px"></td>
+        <td><input type="number" step="0.01" data-line="fob" data-i="${i}" value="${r.fob}" style="width:70px"></td>
+        <td>${n0(r.frtA)}</td><td>${n0(r.dutyA)}</td>
+        <td>${r.excA ? n0(r.excA) : "—"}</td>
+        <td style="font-weight:600">${n2(r.unit)}</td>
+        <td style="font-weight:600;color:${r.gp<8?"var(--maroon)":r.gp<20?"var(--amber)":"var(--gulf)"}">${r.gp.toFixed(1)}%</td>
+        <td>${n0(r.total)}</td>
+        <td><button class="act sm sec" data-drop="${i}">×</button></td>
+      </tr>`).join("")}</tbody>
+      <tfoot><tr><td>Order total</td><td>${n0(L.rows.reduce((a,r)=>a+r.qty,0))}</td>
+        <td colspan="6"></td><td>${n0(L.T.total)}</td><td></td></tr></tfoot>
+    </table></div>
+    <div class="pad">${stackHtml(L.T)}</div>
+    ${L.T.exc ? `<div class="note"><b>${qar(L.T.exc)} of this order — ${(L.T.exc/L.T.total*100).toFixed(0)}% — is excise
+      paid at the border before a single unit sells.</b> It capitalises into stock value, so it will show up in your
+      excise exposure the moment you receive it.</div>` : ""}
+    <div class="bar">
+      <span class="mono" style="color:var(--muted)">${ROUTES[draft.route].lead}-day lead · arrives around ${fmt(addDays(ROUTES[draft.route].lead))}</span>
+      <span class="spacer"></span>
+      <button class="act sec" data-act="clearPO">Clear</button>
+      <button class="act" data-act="sendPO">Send to supplier</button>
+    </div>`
+    : `<div class="empty"><b>No lines yet</b>Pick a product above to start building the order.</div>`}
+  </section>
+
+  <section class="card">
+    <h2>Purchase orders <span class="tag">${DB.pos.length} on file</span></h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Order</th><th>Supplier</th><th>Raised</th><th>Lines</th><th>Value</th><th>Status</th><th></th></tr></thead>
+      <tbody>${DB.pos.length ? DB.pos.map(po => {
+        const t = landed(po).T;
+        const cls = po.status === "Received" ? "p-ok" : po.status === "In transit" ? "p-neutral" : "p-warn";
+        return `<tr>
+          <td><span class="pn">${po.id}</span><small>${ROUTES[po.route].label}</small></td>
+          <td style="text-align:start;font-family:var(--sans)">${sup(po.sup).name}</td>
+          <td>${fmt(po.created)}</td><td>${po.lines.length}</td><td>${n0(t.total)}</td>
+          <td><span class="p ${cls}">${po.status}</span></td>
+          <td>${po.status === "In transit" ? `<button class="act sm" data-recv="${po.id}">Receive</button>` : ""}</td>
+        </tr>`;
+      }).join("") : `<tr><td colspan="7" class="empty">No orders yet</td></tr>`}</tbody>
+    </table></div>
+  </section>`;
+};
+
+/* -------- receiving -------- */
+let recvPO = null, recvData = {};
+VIEWS.receiving = () => {
+  const pending = DB.pos.filter(p => p.status === "In transit");
+  if(!recvPO || !pending.some(p => p.id === recvPO)) recvPO = pending[0] ? pending[0].id : null;
+  if(!recvPO) return `<section class="card"><h2>Goods receipt</h2>
+    <div class="empty"><b>Nothing in transit</b>Raise a purchase order and send it, then come back here to receive it.</div></section>`;
+
+  const po = DB.pos.find(p => p.id === recvPO);
+  const s = sup(po.sup), L = landed(po);
+  const rule = recvData.rule ?? 75;
+  const certBlocked = s.certDays < 0;
+
+  const lines = L.rows.map((r,i) => {
+    const d = recvData[i] || (recvData[i] = {qty:r.qty, life:defaultLife(r.p), used:transitUsed(po), temp:defaultTemp(r.p)});
+    const remain = d.life ? Math.max(0, (d.life - d.used)/d.life*100) : 100;
+    const band = tempBand(r.p);
     const fails = [];
-    if(remain < rule) fails.push(`only ${remain.toFixed(0)}% shelf life left on arrival (rule is ${rule}%)`);
-    if(g.temp !== null && g.band && (g.temp < g.band[0] || g.temp > g.band[1]))
-      fails.push(`received at ${g.temp} °C, outside ${g.band[0]} to ${g.band[1]} °C`);
-    if(g.halal !== null && g.halal < 0) fails.push(`halal certificate expired ${Math.abs(g.halal)} days ago`);
-    const reject = fails.some(f => /halal|outside/.test(f));
-    const verdict = fails.length === 0 ? ["v-pass","ACCEPT"] : reject ? ["v-rej","REJECT"] : ["v-hold","HOLD · CLAIM"];
-    const col = remain < rule ? "var(--maroon)" : remain < rule + 15 ? "var(--amber)" : "var(--gulf)";
-    return `<div class="grow">
-      <div class="who">${g.name}<small>lot ${g.lot} · ${g.used}d of ${g.life}d used in transit${g.temp!==null?` · ${g.temp} °C`:""}</small></div>
-      <span class="verdict ${verdict[0]}">${verdict[1]}</span>
-      <div class="bar"><i style="width:${remain}%;background:${col}"></i></div>
-      <div class="reason">${fails.length ? fails.join(" · ") : "Within shelf-life, temperature and certification limits."}</div>
-    </div>`;
-  }).join("");
-}
-$("slRule").oninput = renderGrn;
+    if(remain < rule) fails.push(`only ${remain.toFixed(0)}% shelf life left (rule ${rule}%)`);
+    if(band && (d.temp < band[0] || d.temp > band[1])) fails.push(`received at ${d.temp} °C, outside ${band[0]} to ${band[1]} °C`);
+    if(certBlocked) fails.push(`${s.cert} certificate expired ${Math.abs(s.certDays)} days ago`);
+    const reject = certBlocked || fails.some(f => /outside/.test(f));
+    const verdict = fails.length === 0 ? ["p-ok","ACCEPT"] : reject ? ["p-bad","REJECT"] : ["p-warn","HOLD · CLAIM"];
+    d.verdict = verdict[1];
+    return {r, i, d, remain, fails, verdict};
+  });
+  const accepted = lines.filter(l => l.d.verdict === "ACCEPT").length;
 
-/* ---------------- stock & expiry ---------------- */
-function renderStock(){
-  const s = $("season").value, S = SEASON[s];
-  $("seasonNote").textContent = S.label;
-  $("stockCtx").textContent = "7 SKUs · Al Sadd branch";
-  $("stockRows").innerHTML = STOCK.map(k => {
-    const daily = k.daily * (S.f[k.cat] || 1);
-    const cover = daily > 0 ? k.onhand / daily : 999;
-    const lead  = ROUTES[k.route].lead;
-    const orderBy = Math.floor(cover - lead);
-    let act, cls;
-    if(k.expiry <= cover){ act = `Will expire before it sells — mark down now, roughly ${Math.max(0, Math.round(k.onhand - daily*k.expiry))} units at risk`; cls = "v-rej"; }
-    else if(orderBy <= 0){ act = `Order today — ${lead}-day lead time already eats the cover`; cls = "v-rej"; }
-    else if(orderBy <= 5){ act = `Order within ${orderBy} day${orderBy===1?"":"s"} to avoid a gap`; cls = "v-hold"; }
-    else { act = `Comfortable — order in about ${orderBy} days`; cls = "v-pass"; }
-    const need = Math.max(0, Math.round(daily * (lead + 14) - k.onhand));
-    const pct = Math.min(100, cover / 45 * 100);
-    return `<div class="grow">
-      <div class="who">${k.name}<small>${n0(k.onhand)} on hand · ${daily.toFixed(0)}/day · ${lead}d lead · expires in ${k.expiry}d</small></div>
-      <span class="verdict ${cls}">${cover>900?"—":cover.toFixed(0)+"d cover"}</span>
-      <div class="bar"><i style="width:${pct}%;background:${cls==="v-rej"?"var(--maroon)":cls==="v-hold"?"var(--amber)":"var(--gulf)"}"></i></div>
-      <div class="reason">${act}${need?` · suggested order ${n0(need)} units`:""}</div>
-    </div>`;
-  }).join("");
-}
-$("season").oninput = renderStock;
+  return `
+  <section class="card">
+    <h2>Goods receipt <span class="tag">${po.id} · ${s.name}</span></h2>
+    <div class="form">
+      <div class="f"><label>Order</label>
+        <select data-recv-po>${pending.map(p => `<option value="${p.id}" ${p.id===recvPO?"selected":""}>${p.id} — ${sup(p.sup).name}</option>`).join("")}</select></div>
+      <div class="f"><label>Min shelf life on arrival</label>
+        <input type="number" data-recv="rule" value="${rule}" min="0" max="95" step="5">
+        <span class="hint">Percent remaining</span></div>
+      <div class="f"><label>Supplier certificate</label>
+        <input value="${s.cert}: ${s.certDays < 0 ? "EXPIRED" : s.certDays + " days left"}" disabled>
+        <span class="hint">${certBlocked ? "Blocks the whole receipt" : "Valid"}</span></div>
+    </div>
+    ${certBlocked ? `<div class="note"><b>Receiving is blocked.</b> ${s.name}'s ${s.cert.toLowerCase()} certificate
+      lapsed ${Math.abs(s.certDays)} days ago. Nothing from this supplier can be brought into stock until it is renewed —
+      condition of the goods is irrelevant.</div>` : ""}
+    <div class="scroll"><table>
+      <thead><tr><th>Product</th><th>Ordered</th><th>Received</th><th>Shelf life</th><th>Days in transit</th><th>Temp °C</th><th>Remaining</th><th>Landed/u</th><th>Verdict</th></tr></thead>
+      <tbody>${lines.map(({r,i,d,remain,fails,verdict}) => `<tr>
+        <td><span class="pn">${r.p.en}</span><small>${fails.length ? fails.join(" · ") : "Within all limits"}</small></td>
+        <td>${n0(r.qty)}</td>
+        <td><input type="number" data-rcv="qty" data-i="${i}" value="${d.qty}" style="width:70px"></td>
+        <td><input type="number" data-rcv="life" data-i="${i}" value="${d.life}" style="width:66px"></td>
+        <td><input type="number" data-rcv="used" data-i="${i}" value="${d.used}" style="width:60px"></td>
+        <td>${tempBand(r.p) ? `<input type="number" step="0.1" data-rcv="temp" data-i="${i}" value="${d.temp}" style="width:62px">` : "—"}</td>
+        <td>${remain.toFixed(0)}%<div class="gline"><i style="width:${remain}%;background:${remain<rule?"var(--maroon)":remain<rule+15?"var(--amber)":"var(--gulf)"}"></i></div></td>
+        <td style="font-weight:600">${n2(r.unit)}</td>
+        <td><span class="p ${verdict[0]}">${verdict[1]}</span></td>
+      </tr>`).join("")}</tbody>
+    </table></div>
+    <div class="bar">
+      <span class="mono" style="color:var(--muted)">${accepted} of ${lines.length} lines will post to stock</span>
+      <span class="spacer"></span>
+      <button class="act" data-act="postGRN" ${accepted ? "" : "disabled"}>Post receipt</button>
+    </div>
+    <div class="foot">
+      Shelf-life failures are a supplier claim — the goods are usable, the deal isn't. Temperature and certificate
+      failures are refusals. Only accepted lines create stock lots, and each lot carries its own landed cost, so
+      average cost moves when this posts.
+    </div>
+  </section>`;
+};
+function defaultLife(p){ return {Chilled:180, Meat:120, Frozen:540, Drinks:300, Pantry:730, Tobacco:365}[p.cat] || 365; }
+function defaultTemp(p){ return p.cat === "Frozen" ? -19.2 : p.cat === "Chilled" || p.cat === "Meat" ? 3.4 : 0; }
+function tempBand(p){ return p.cat === "Frozen" ? [-25,-18] : p.cat === "Chilled" ? [0,5] : p.cat === "Meat" ? [0,4] : null; }
+function transitUsed(po){ return ROUTES[po.route].lead + 8; }
 
-/* ---------------- tabs ---------------- */
-document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
-  document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-pressed", x === b));
-  ["ship","grn","stock"].forEach(t => $("tab-"+t).classList.toggle("hidden", t !== b.dataset.tab));
+/* -------- stock & lots -------- */
+VIEWS.stock = () => {
+  const lots = DB.lots.slice().sort((a,b) => a.exp - b.exp);
+  return `
+  <section class="card">
+    <h2>Stock by lot <span class="tag">${lots.length} lots · ${qar(DB.products.reduce((a,p)=>a+stockValue(p.id),0))}</span></h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Lot</th><th>Product</th><th>Qty</th><th>Unit cost</th><th>Value</th><th>Excise in cost</th><th>Received</th><th>Expires</th><th>Left</th><th></th></tr></thead>
+      <tbody>${lots.map(l => { const p = prod(l.pid); return `<tr>
+        <td><span class="pn">${l.id}</span><small>${l.grn}</small></td>
+        <td style="text-align:start;font-family:var(--sans)">${p.en}${chips(p)}</td>
+        <td>${n0(l.qty)}</td><td>${n2(l.unitCost)}</td><td>${n0(l.qty*l.unitCost)}</td>
+        <td>${l.excU ? n0(l.qty*l.excU) : "—"}</td>
+        <td>${fmt(l.recv)}</td><td>${fmt(l.exp)}</td><td>${expiryPill(l.exp)}</td>
+        <td>${daysTo(l.exp) <= 45 ? `<button class="act sm sec" data-markdown="${l.id}">Mark down</button>` : ""}</td>
+      </tr>`; }).join("")}</tbody>
+    </table></div>
+    <div class="foot">
+      Lots are consumed oldest-expiry-first. Marking down cuts the shelf price on that product by 30% and logs the
+      margin given up, which is the honest way to account for it — the loss happened at goods receipt, not at the till.
+    </div>
+  </section>`;
+};
+
+/* -------- adjustments -------- */
+let adj = {pid:"P1", qty:1, reason:WASTE_REASONS[0]};
+VIEWS.adjustments = () => {
+  const p = prod(adj.pid), cost = wac(adj.pid);
+  const counts = DB.counts.slice().reverse().slice(0,8);
+  return `
+  <section class="card">
+    <h2>Write off stock</h2>
+    <div class="form">
+      <div class="f"><label>Product</label>
+        <select data-adj="pid">${DB.products.map(x => `<option value="${x.id}" ${adj.pid===x.id?"selected":""}>${x.en}</option>`).join("")}</select>
+        <span class="hint">${n0(onHand(adj.pid))} ${p.uom} on hand</span></div>
+      <div class="f"><label>Quantity</label><input type="number" data-adj="qty" value="${adj.qty}" min="1"></div>
+      <div class="f"><label>Reason</label>
+        <select data-adj="reason">${WASTE_REASONS.map(r => `<option ${adj.reason===r?"selected":""}>${r}</option>`).join("")}</select></div>
+      <div class="f"><label>Cost of this write-off</label><input value="QAR ${n2(adj.qty*cost)}" disabled>
+        <span class="hint">at weighted average cost</span></div>
+    </div>
+    <div class="bar"><span class="spacer"></span>
+      <button class="act" data-act="postWaste" ${onHand(adj.pid) >= adj.qty ? "" : "disabled"}>Post write-off</button></div>
+  </section>
+
+  <section class="card">
+    <h2>Cycle count <span class="tag">enter what you counted</span></h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Product</th><th>System</th><th>Counted</th><th>Variance</th><th>Value</th><th></th></tr></thead>
+      <tbody>${DB.products.slice(0,6).map(x => {
+        const q = onHand(x.id);
+        return `<tr>
+          <td><span class="pn">${x.en}</span><small>${x.sku}</small></td>
+          <td>${n0(q)}</td>
+          <td><input type="number" data-count="${x.id}" value="${q}" style="width:80px"></td>
+          <td id="var-${x.id}">0</td><td id="varv-${x.id}">0.00</td>
+          <td><button class="act sm sec" data-post-count="${x.id}">Post</button></td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table></div>
+    <div class="foot">Counting is where shrinkage becomes visible. Posting a variance writes a movement row with the cost impact, so it shows up in the ledger rather than quietly disappearing into cost of sales.</div>
+  </section>
+
+  ${counts.length ? `<section class="card"><h2>Recent count variances</h2>
+    <div class="scroll"><table><thead><tr><th>Product</th><th>When</th><th>Variance</th><th>Value</th></tr></thead>
+    <tbody>${counts.map(c => `<tr><td>${prod(c.pid).en}</td><td>${fmt(c.date)}</td>
+      <td style="color:${c.diff<0?"var(--maroon)":"var(--gulf)"}">${c.diff>0?"+":""}${n0(c.diff)}</td>
+      <td>${n2(c.value)}</td></tr>`).join("")}</tbody></table></div></section>` : ""}`;
+};
+
+/* -------- reports -------- */
+VIEWS.reports = () => {
+  const rows = DB.products.map(p => ({p, q:onHand(p.id), v:stockValue(p.id), e:exciseHeld(p.id)}))
+    .sort((a,b) => b.v - a.v);
+  const total = rows.reduce((a,r) => a + r.v, 0);
+  let cum = 0;
+  const moves = DB.moves.slice().reverse().slice(0,14);
+  return `
+  <section class="card">
+    <h2>Stock valuation &amp; ABC <span class="tag">${qar(total)} total</span></h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Product</th><th>Qty</th><th>Avg cost</th><th>Value</th><th>Share</th><th>Cumulative</th><th>Class</th><th>Excise held</th></tr></thead>
+      <tbody>${rows.map(r => {
+        const share = total ? r.v/total*100 : 0; cum += share;
+        const cls = cum <= 70 ? "A" : cum <= 90 ? "B" : "C";
+        const col = cls === "A" ? "p-bad" : cls === "B" ? "p-warn" : "p-neutral";
+        return `<tr>
+          <td><span class="pn">${r.p.en}</span><small>${r.p.cat}</small></td>
+          <td>${n0(r.q)}</td><td>${n2(wac(r.p.id))}</td><td>${n0(r.v)}</td>
+          <td>${share.toFixed(1)}%</td><td>${cum.toFixed(1)}%</td>
+          <td><span class="p ${col}">${cls}</span></td>
+          <td>${r.e ? n0(r.e) : "—"}</td>
+        </tr>`;
+      }).join("")}</tbody>
+      <tfoot><tr><td>Total</td><td></td><td></td><td>${n0(total)}</td><td>100%</td><td></td><td></td>
+        <td>${n0(rows.reduce((a,r)=>a+r.e,0))}</td></tr></tfoot>
+    </table></div>
+    <div class="foot">Class A lines are the 70% of stock value you count weekly. In this market they are usually the excise categories, not the fast movers.</div>
+  </section>
+
+  <section class="card">
+    <h2>Movement ledger <span class="tag">last ${moves.length} of ${DB.moves.length}</span></h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Reference</th><th>Date</th><th>Type</th><th>Product</th><th>Qty</th><th>Value</th></tr></thead>
+      <tbody>${moves.map(m => `<tr>
+        <td><span class="pn">${m.ref}</span><small>${m.id}</small></td>
+        <td>${fmt(m.date)}</td>
+        <td style="text-align:start;font-family:var(--sans)">${m.type}</td>
+        <td style="text-align:start;font-family:var(--sans)">${prod(m.pid).en}</td>
+        <td style="color:${m.qty<0?"var(--maroon)":"var(--gulf)"}">${m.qty>0?"+":""}${n0(m.qty)}</td>
+        <td>${n2(m.value)}</td>
+      </tr>`).join("")}</tbody>
+    </table></div>
+    <div class="foot">Every quantity change writes a row here. Nothing edits stock silently — that is the difference between an inventory system and a spreadsheet.</div>
+  </section>`;
+};
+
+/* ============================ actions ============================ */
+function postGRN(){
+  const po = DB.pos.find(p => p.id === recvPO);
+  const L = landed(po);
+  let n = 0, val = 0;
+  L.rows.forEach((r,i) => {
+    const d = recvData[i];
+    if(!d || d.verdict !== "ACCEPT" || d.qty <= 0) return;
+    const grn = uid("GRN");
+    DB.lots.push({id:uid("LOT"), pid:r.pid, qty:d.qty, unitCost:r.unit, excU:r.excU,
+      recv:today(), exp:addDays(d.life - d.used), grn});
+    DB.moves.push({id:uid("MV"), date:today(), type:"Goods receipt", pid:r.pid, qty:d.qty,
+      value:d.qty*r.unit, ref:po.id});
+    n++; val += d.qty * r.unit;
+  });
+  po.status = "Received";
+  recvPO = null; recvData = {};
+  toast(`Posted ${n} line${n===1?"":"s"} · ${qar(val)} added to stock`);
+  go("stock");
+}
+function sendPO(){
+  if(!draft.lines.length) return;
+  draft.status = "In transit";
+  DB.pos.unshift(draft);
+  toast(`${draft.id} sent · arrives around ${fmt(addDays(ROUTES[draft.route].lead))}`);
+  draft = null;
+  render();
+}
+function postWaste(){
+  const p = prod(adj.pid); let need = adj.qty; const cost = wac(adj.pid);
+  DB.lots.filter(l => l.pid === adj.pid).sort((a,b) => a.exp - b.exp).forEach(l => {
+    if(need <= 0) return;
+    const take = Math.min(l.qty, need); l.qty -= take; need -= take;
+  });
+  DB.lots = DB.lots.filter(l => l.qty > 0.001);
+  DB.moves.push({id:uid("MV"), date:today(), type:"Write-off", pid:adj.pid, qty:-adj.qty,
+    value:-adj.qty*cost, ref:adj.reason});
+  toast(`Wrote off ${n0(adj.qty)} ${p.uom} · ${qar(adj.qty*cost)}`);
+  adj.qty = 1; render();
+}
+function postCount(pid){
+  const el = document.querySelector(`[data-count="${pid}"]`);
+  const counted = +el.value, sys = onHand(pid), diff = counted - sys, cost = wac(pid);
+  if(diff === 0){ toast("No variance to post"); return; }
+  if(diff < 0){
+    let need = -diff;
+    DB.lots.filter(l => l.pid === pid).sort((a,b) => a.exp - b.exp).forEach(l => {
+      if(need <= 0) return; const take = Math.min(l.qty, need); l.qty -= take; need -= take;
+    });
+    DB.lots = DB.lots.filter(l => l.qty > 0.001);
+  } else {
+    DB.lots.push({id:uid("LOT"), pid, qty:diff, unitCost:cost, excU:0, recv:today(), exp:addDays(120), grn:"count adj"});
+  }
+  DB.counts.push({pid, date:today(), diff, value:diff*cost});
+  DB.moves.push({id:uid("MV"), date:today(), type:"Count adjustment", pid, qty:diff, value:diff*cost, ref:"Cycle count"});
+  toast(`Variance ${diff>0?"+":""}${n0(diff)} posted · ${qar(Math.abs(diff*cost))}`);
+  render();
+}
+function markdown(lotId){
+  const l = DB.lots.find(x => x.id === lotId); if(!l) return;
+  const p = prod(l.pid), was = p.retail;
+  p.retail = Math.round(p.retail * 0.7 * 4) / 4;
+  DB.moves.push({id:uid("MV"), date:today(), type:"Markdown", pid:l.pid, qty:0,
+    value:-(was - p.retail) * l.qty, ref:`${l.id} 30% off`});
+  toast(`${p.en} marked down ${n2(was)} → ${n2(p.retail)}`);
+  render();
+}
+
+/* ============================ router ============================ */
+const TABS = [
+  ["dashboard","Dashboard"], ["products","Products"], ["suppliers","Suppliers"],
+  ["purchasing","Purchasing"], ["receiving","Receiving"], ["stock","Stock & lots"],
+  ["adjustments","Waste & counts"], ["reports","Reports"]
+];
+let current = "dashboard";
+function go(t){ current = t; render(); window.scrollTo({top:0,behavior:"instant"}); }
+function render(){
+  $("#nav").innerHTML = TABS.map(([k,l]) =>
+    `<button data-go="${k}" aria-current="${current===k}">${l}</button>`).join("");
+  $("#view").innerHTML = VIEWS[current]();
+}
+
+/* delegated events */
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.go) return go(b.dataset.go);
+  if(b.id === "reset"){ seed(); draft = null; recvPO = null; recvData = {}; toast("Demo data reset"); return render(); }
+  if(b.dataset.drop !== undefined){ draft.lines.splice(+b.dataset.drop,1); return render(); }
+  if(b.dataset.recv){ recvPO = b.dataset.recv; recvData = {}; return go("receiving"); }
+  if(b.dataset.markdown) return markdown(b.dataset.markdown);
+  if(b.dataset.postCount) return postCount(b.dataset.postCount);
+  if(b.dataset.act === "sendPO") return sendPO();
+  if(b.dataset.act === "clearPO"){ draft = null; return render(); }
+  if(b.dataset.act === "postGRN") return postGRN();
+  if(b.dataset.act === "postWaste") return postWaste();
 });
 
-renderShip(); renderGrn(); renderStock();
+document.addEventListener("input", e => {
+  const el = e.target, d = el.dataset;
+  if(d.edit){ prod(d.id)[d.edit] = +el.value || 0; return softRender(el); }
+  if(d.po){
+    if(d.po === "sup"){ draft.sup = el.value; draft.lines = []; return render(); }
+    if(d.po === "basis"){ draft.basis = el.value; return render(); }
+    if(d.po === "add"){ if(el.value){ draft.lines.push({pid:el.value, qty:100, fob:1.00}); render(); } return; }
+    draft.charges[d.po] = +el.value || 0; return softRender(el);
+  }
+  if(d.line){ draft.lines[+d.i][d.line] = +el.value || 0; return softRender(el); }
+  if(el.hasAttribute("data-recv-po")){ recvPO = el.value; recvData = {}; return render(); }
+  if(d.recv === "rule"){ recvData.rule = +el.value || 0; return softRender(el); }
+  if(d.rcv){ recvData[+d.i][d.rcv] = +el.value || 0; return softRender(el); }
+  if(d.adj){ adj[d.adj] = d.adj === "qty" ? (+el.value || 0) : el.value; return softRender(el); }
+  if(d.count){
+    const pid = d.count, diff = (+el.value || 0) - onHand(pid);
+    $("#var-"+pid).textContent = (diff>0?"+":"") + n0(diff);
+    $("#var-"+pid).style.color = diff < 0 ? "var(--maroon)" : diff > 0 ? "var(--gulf)" : "";
+    $("#varv-"+pid).textContent = n2(Math.abs(diff * wac(pid)));
+  }
+});
+
+/* re-render but keep the caret where it was */
+function softRender(el){
+  const sel = el.dataset.edit ? `[data-edit="${el.dataset.edit}"][data-id="${el.dataset.id}"]`
+            : el.dataset.line ? `[data-line="${el.dataset.line}"][data-i="${el.dataset.i}"]`
+            : el.dataset.rcv  ? `[data-rcv="${el.dataset.rcv}"][data-i="${el.dataset.i}"]`
+            : el.dataset.po   ? `[data-po="${el.dataset.po}"]`
+            : el.dataset.recv ? `[data-recv="${el.dataset.recv}"]`
+            : el.dataset.adj  ? `[data-adj="${el.dataset.adj}"]`
+            : null;
+  render();
+  if(!sel) return;
+  const again = document.querySelector(sel);
+  if(again){ again.focus(); try{ again.setSelectionRange(9999,9999); }catch(_){} }
+}
+
+render();
 </script>
 </body>
 </html>
