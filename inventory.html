@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUQ — Inventory &amp; Landed Cost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --maroon:#8A1538; --maroon-deep:#5E0E26; --maroon-tint:#F6E9ED;
+  --ink:#14161A; --gypsum:#F1F2EE; --card:#FFF;
+  --line:#DEDFD8; --line-soft:#EBECE6;
+  --gulf:#0E6E6E; --gulf-tint:#E4F0EF;
+  --amber:#A96A08; --amber-tint:#FBF0DE;
+  --sand:#B79A5E; --sand-tint:#F5EEDF;
+  --slate:#3A4A5C; --slate-tint:#E7EBEF;
+  --muted:#6B6F76; --r:10px;
+  --sans:'IBM Plex Sans Arabic','Segoe UI',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);background:var(--gypsum);color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select{font-family:var(--mono);font-size:13px;color:var(--ink)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.shell{max-width:1280px;margin:0 auto;padding:14px}
+
+.mast{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.brand{display:flex;align-items:baseline;gap:8px}
+.brand b{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.brand .sub{font-size:11px;color:var(--muted);letter-spacing:.10em;text-transform:uppercase}
+.spacer{flex:1}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:500;color:var(--muted)}
+.tabs button[aria-pressed="true"]{background:var(--maroon);border-color:var(--maroon);color:#fff}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px}
+.card h2{margin:0;padding:11px 14px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-soft);font-weight:600;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card h2 .tag{margin-inline-start:auto;letter-spacing:0;text-transform:none;font-size:11px;font-family:var(--mono)}
+.pad{padding:14px}
+
+/* shipment header controls */
+.ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;padding:14px}
+.f{display:flex;flex-direction:column;gap:4px}
+.f label{font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.f input,.f select{border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:var(--card);width:100%}
+.f input:focus,.f select:focus{outline:2px solid var(--maroon);outline-offset:-1px;border-color:var(--maroon)}
+.f .hint{font-size:10px;color:var(--muted);font-family:var(--sans)}
+
+/* table */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:940px}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:end;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap;background:#FAFAF8;position:sticky;top:0}
+th:first-child{text-align:start}
+td{padding:6px 8px;border-bottom:1px solid var(--line-soft);text-align:end;font-family:var(--mono);font-size:13px;white-space:nowrap}
+td:first-child{text-align:start;font-family:var(--sans)}
+tbody tr:hover{background:#FBFBF9}
+td input,td select{border:1px solid transparent;border-radius:6px;padding:4px 6px;width:82px;text-align:end;background:#F7F8F5}
+td select{width:auto;text-align:start;font-family:var(--sans);font-size:12px}
+td input:hover,td select:hover{border-color:var(--line)}
+td input:focus,td select:focus{outline:2px solid var(--maroon);outline-offset:-1px;background:#fff}
+td.calc{font-weight:600}
+td.dim{color:var(--muted)}
+tfoot td{border-top:2px solid var(--line);border-bottom:0;font-weight:700;padding-top:10px}
+.pname{font-weight:600;display:block}
+.pname+small{color:var(--muted);font-size:11px}
+.del{color:var(--muted);width:22px;height:22px;border-radius:5px;line-height:1}
+.del:hover{background:var(--maroon-tint);color:var(--maroon)}
+.addrow{margin:10px 14px 14px;border:1px dashed var(--line);border-radius:8px;padding:9px 14px;color:var(--muted);font-weight:500;width:calc(100% - 28px)}
+.addrow:hover{border-color:var(--maroon);color:var(--maroon)}
+
+.chip{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;font-family:var(--sans)}
+.c-exc{background:var(--amber-tint);color:var(--amber)}
+.c-gcc{background:var(--gulf-tint);color:var(--gulf)}
+.c-qa{background:var(--maroon-tint);color:var(--maroon)}
+.gp-ok{color:var(--gulf)}
+.gp-thin{color:var(--amber)}
+.gp-bad{color:var(--maroon)}
+
+/* cost stack */
+.stack{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.stack div{display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;color:#fff;min-width:0;overflow:hidden}
+.s-fob{background:var(--slate)} .s-frt{background:var(--sand)} .s-dut{background:var(--gulf)}
+.s-exc{background:var(--amber)} .s-clr{background:#8E9299}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-inline-end:6px}
+.insight{background:var(--maroon-tint);border-inline-start:3px solid var(--maroon);padding:11px 13px;border-radius:0 8px 8px 0;margin-top:14px;font-size:13px;line-height:1.5}
+.insight b{color:var(--maroon-deep)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:0 14px 14px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:11px}
+.kpi .v{font-family:var(--mono);font-size:21px;font-weight:600;letter-spacing:-.02em}
+.kpi .l{font-size:11px;color:var(--muted);margin-top:2px}
+.kpi.warn .v{color:var(--amber)}
+.kpi.bad .v{color:var(--maroon)}
+
+/* receipt gate + stock board */
+.rows{padding:0 0 6px}
+.grow{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:11px 14px;border-bottom:1px solid var(--line-soft);align-items:center}
+.grow .who{font-weight:600}
+.grow .who small{display:block;font-weight:400;color:var(--muted);font-family:var(--mono);font-size:11px}
+.verdict{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;white-space:nowrap}
+.v-pass{background:var(--gulf-tint);color:var(--gulf)}
+.v-hold{background:var(--amber-tint);color:var(--amber)}
+.v-rej{background:var(--maroon-tint);color:var(--maroon)}
+.bar{grid-column:1/-1;height:6px;border-radius:99px;background:var(--line-soft);overflow:hidden;margin-top:3px}
+.bar i{display:block;height:100%;border-radius:99px}
+.reason{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:2px}
+.slider{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.slider input[type=range]{flex:1;min-width:180px;accent-color:var(--maroon)}
+.foot{padding:12px 14px;color:var(--muted);font-size:11px;border-top:1px solid var(--line-soft);line-height:1.55}
+.hidden{display:none !important}
+:focus-visible{outline:2px solid var(--maroon);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header class="mast">
+  <div class="brand"><b>SUQ</b><span class="sub">Inventory &amp; Landed Cost</span></div>
+  <div class="spacer"></div>
+  <div class="tabs">
+    <button data-tab="ship" aria-pressed="true">Shipment costing</button>
+    <button data-tab="grn" aria-pressed="false">Goods receipt</button>
+    <button data-tab="stock" aria-pressed="false">Stock &amp; expiry</button>
+  </div>
+</header>
+
+<!-- ==================== SHIPMENT COSTING ==================== -->
+<div id="tab-ship">
+  <section class="card">
+    <h2>Shipment header <span class="tag" id="shipRef">SHP-2026-0312 · Doha</span></h2>
+    <div class="ctrls">
+      <div class="f"><label>Route</label>
+        <select id="route">
+          <option value="sea">Sea · Hamad Port</option>
+          <option value="land">Land · Abu Samra</option>
+          <option value="air">Air · HIA</option>
+          <option value="local">Local · Qatar supplier</option>
+        </select><span class="hint" id="routeHint"></span></div>
+      <div class="f"><label>USD → QAR</label><input id="fx" type="number" step="0.01" value="3.64"><span class="hint">Pegged rate</span></div>
+      <div class="f"><label>Freight QAR</label><input id="freight" type="number" value="18000"></div>
+      <div class="f"><label>Insurance QAR</label><input id="insurance" type="number" value="1400"></div>
+      <div class="f"><label>Clearing &amp; port</label><input id="clearing" type="number" value="4200"></div>
+      <div class="f"><label>Inland transport</label><input id="inland" type="number" value="1800"></div>
+      <div class="f"><label>Demurrage</label><input id="demurrage" type="number" value="0"><span class="hint">Port storage</span></div>
+      <div class="f"><label>Apportion by</label>
+        <select id="basis">
+          <option value="value">Value (CIF)</option>
+          <option value="weight">Gross weight</option>
+          <option value="units">Unit count</option>
+        </select><span class="hint">Changes every unit cost</span></div>
+      <div class="f"><label>Excise base</label>
+        <select id="excBase">
+          <option value="rsp">Declared retail price</option>
+          <option value="cif">CIF + duty</option>
+        </select><span class="hint">Verify with GTA</span></div>
+      <div class="f"><label>VAT scenario</label>
+        <select id="vatMode">
+          <option value="off">No VAT (today)</option>
+          <option value="absorb">VAT 5% · hold shelf price</option>
+          <option value="pass">VAT 5% · pass to customer</option>
+        </select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Shipment lines <span class="tag">edit any figure</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th>Product</th><th>Qty</th><th>FOB USD/u</th><th>Kg/u</th><th>Duty %</th>
+          <th>Excise</th><th>Base QAR/u</th><th>Shelf QAR</th>
+          <th>Landed/u</th><th>GP %</th><th></th>
+        </tr></thead>
+        <tbody id="lineBody"></tbody>
+        <tfoot id="lineFoot"></tfoot>
+      </table>
+    </div>
+    <button class="addrow" id="addLine">+ Add a line</button>
+  </section>
+
+  <section class="card">
+    <h2>Where the money goes <span class="tag" id="stackTotal"></span></h2>
+    <div class="pad">
+      <div class="stack" id="stack"></div>
+      <div class="legend">
+        <span><i style="background:var(--slate)"></i>Goods (FOB)</span>
+        <span><i style="background:var(--sand)"></i>Freight &amp; insurance</span>
+        <span><i style="background:var(--gulf)"></i>Customs duty</span>
+        <span><i style="background:var(--amber)"></i>Excise tax</span>
+        <span><i style="background:#8E9299"></i>Clearing, inland, demurrage</span>
+      </div>
+      <div class="insight" id="insight"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="foot">
+      Duty is computed on CIF (FOB + apportioned freight and insurance). Excise is paid at import and capitalised into
+      stock — it never appears as a line on a customer receipt. Rates shown are defaults: GCC-origin goods and most
+      basic foodstuffs are entered at 0%, other goods at the 5% common external tariff. Confirm every HS code and the
+      excise valuation basis with the General Tax Authority and your clearing agent before relying on these figures.
+    </div>
+  </section>
+</div>
+
+<!-- ==================== GOODS RECEIPT ==================== -->
+<div id="tab-grn" class="hidden">
+  <section class="card">
+    <h2>Receiving gate <span class="tag" id="grnRef">GRN-2026-0891 · Al Wakra DC</span></h2>
+    <div class="slider">
+      <label for="slRule" style="font-weight:600">Minimum remaining shelf life on arrival</label>
+      <input type="range" id="slRule" min="40" max="90" step="5" value="75">
+      <span class="num" id="slRuleVal" style="font-weight:600">75%</span>
+    </div>
+    <div class="rows" id="grnRows"></div>
+    <div class="foot">
+      Qatar imports almost everything, so shelf life is consumed in transit before the goods reach the shelf. The gate
+      is applied at receipt, not at the shelf: a pallet that arrives with too little life left is a supplier claim
+      today and a write-off in six weeks. Chilled lines also fail on temperature, and meat and poultry fail on an
+      expired halal certificate regardless of condition.
+    </div>
+  </section>
+</div>
+
+<!-- ==================== STOCK & EXPIRY ==================== -->
+<div id="tab-stock" class="hidden">
+  <section class="card">
+    <h2>Stock cover &amp; expiry <span class="tag" id="stockCtx"></span></h2>
+    <div class="slider">
+      <label style="font-weight:600">Demand scenario</label>
+      <select id="season" style="border:1px solid var(--line);border-radius:7px;padding:7px 9px">
+        <option value="normal">Normal trading</option>
+        <option value="preram">Pre-Ramadan build (6 weeks out)</option>
+        <option value="ramadan">Ramadan</option>
+        <option value="summer">Summer exodus (Jun–Aug)</option>
+      </select>
+      <span class="num" id="seasonNote" style="color:var(--muted)"></span>
+    </div>
+    <div class="rows" id="stockRows"></div>
+    <div class="foot">
+      Lead times are route-dependent: local 2 days, Abu Samra land 7 days, air 4 days, Hamad Port sea 28 days. Order-by
+      dates work backwards from cover, which is why Ramadan procurement has to start six weeks early on sea freight.
+      Because Ramadan moves roughly eleven days earlier each Gregorian year, comparatives run on the Hijri calendar —
+      "same week last year" is the wrong baseline in this market.
+    </div>
+  </section>
+</div>
+
+<p class="foot" style="border:0;padding:14px 2px">
+  Prototype with sample data. Figures are illustrative and are not tax, customs or pricing advice.
+</p>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const n2 = v => (Math.round(v*100)/100).toFixed(2);
+const n0 = v => Math.round(v).toLocaleString("en-US");
+
+/* ---------------- data ---------------- */
+const EXCISE = {none:0, carb:0.5, energy:1.0, tobacco:1.0, special:1.0};
+const EXC_LABEL = {none:"—", carb:"Carbonated 50%", energy:"Energy 100%", tobacco:"Tobacco 100%", special:"Special 100%"};
+const ROUTES = {
+  sea:{lead:28, hint:"28-day lead time"},
+  land:{lead:7,  hint:"7-day lead time"},
+  air:{lead:4,  hint:"4-day lead, high freight"},
+  local:{lead:2, hint:"2 days, no duty or freight"}
+};
+
+let LINES = [
+  {name:"Basmati Rice 5kg",      ar:"أرز بسمتي", org:"India",   qty:400,  fob:6.20, kg:5.20, duty:0, exc:"none",    base:0,     shelf:42},
+  {name:"Sunflower Oil 1.8L",    ar:"زيت دوار الشمس", org:"Türkiye", qty:300, fob:2.90, kg:1.90, duty:0, exc:"none", base:0,     shelf:19},
+  {name:"Cheddar Block 1kg",     ar:"جبن شيدر", org:"New Zealand", qty:150, fob:7.40, kg:1.05, duty:0, exc:"none", base:0,      shelf:46},
+  {name:"Cola Can 330ml",        ar:"كولا",     org:"Saudi Arabia (GCC)", qty:4800, fob:0.16, kg:0.36, duty:0, exc:"carb",   base:1.20, shelf:2.50},
+  {name:"Energy Drink 250ml",    ar:"مشروب طاقة", org:"Austria", qty:2400, fob:0.60, kg:0.30, duty:5, exc:"energy", base:5.00, shelf:12.00},
+  {name:"Cigarettes 20s",        ar:"سجائر",    org:"Switzerland", qty:1000, fob:0.85, kg:0.03, duty:5, exc:"tobacco",base:11.00,shelf:25.00}
+];
+
+const GRN = [
+  {name:"Cheddar Block 1kg", lot:"NZ-4471", life:180, used:96,  temp:3.4, band:[0,5], halal:null},
+  {name:"Chicken Breast IQF", lot:"BR-2209", life:365, used:118, temp:-19.2, band:[-25,-18], halal:212},
+  {name:"Basmati Rice 5kg",  lot:"IN-8830", life:730, used:141, temp:null, band:null, halal:null},
+  {name:"Lamb Carcass",      lot:"AU-1174", life:120, used:52,  temp:2.1, band:[0,4], halal:-6},
+  {name:"Fresh Yoghurt 1kg", lot:"QA-0031", life:21,  used:2,   temp:4.9, band:[0,5], halal:null},
+  {name:"Frozen Fries 2.5kg",lot:"BE-6620", life:540, used:302, temp:-15.4, band:[-25,-18], halal:null}
+];
+
+const STOCK = [
+  {name:"Khalas Dates 1kg",   cat:"ramadan", onhand:180,  daily:12,  expiry:210, route:"local"},
+  {name:"Basmati Rice 5kg",   cat:"staple",  onhand:640,  daily:26,  expiry:520, route:"sea"},
+  {name:"Vimto Cordial 710ml",cat:"ramadan", onhand:95,   daily:6,   expiry:400, route:"sea"},
+  {name:"Fresh Yoghurt 1kg",  cat:"chilled", onhand:210,  daily:64,  expiry:6,   route:"local"},
+  {name:"Cheddar Block 1kg",  cat:"chilled", onhand:88,   daily:9,   expiry:23,  route:"air"},
+  {name:"Cola Can 330ml",     cat:"drinks",  onhand:5200, daily:210, expiry:290, route:"land"},
+  {name:"Frozen Fries 2.5kg", cat:"frozen",  onhand:310,  daily:22,  expiry:180, route:"sea"}
+];
+const SEASON = {
+  normal:{label:"baseline", f:{ramadan:1, staple:1, chilled:1, drinks:1, frozen:1}},
+  preram:{label:"stock build before the fast", f:{ramadan:3.4, staple:1.8, chilled:1.2, drinks:1.3, frozen:1.4}},
+  ramadan:{label:"daytime trade collapses, evening peaks", f:{ramadan:2.6, staple:1.5, chilled:1.4, drinks:1.8, frozen:1.3}},
+  summer:{label:"residents travel, covers fall", f:{ramadan:0.6, staple:0.7, chilled:0.65, drinks:0.9, frozen:0.75}}
+};
+
+/* ---------------- shipment engine ---------------- */
+function calc(){
+  const fx   = +$("fx").value || 3.64;
+  const route= $("route").value;
+  const isLocal = route === "local";
+  const frt  = isLocal ? 0 : +$("freight").value || 0;
+  const ins  = isLocal ? 0 : +$("insurance").value || 0;
+  const clr  = (+$("clearing").value||0) + (+$("inland").value||0) + (+$("demurrage").value||0);
+  const basis= $("basis").value;
+  const eb   = $("excBase").value;
+  const vat  = $("vatMode").value;
+
+  const rows = LINES.map(l => ({...l, fobQ: l.fob * fx * l.qty, wt: l.kg * l.qty, units: l.qty}));
+  const key  = basis === "value" ? "fobQ" : basis === "weight" ? "wt" : "units";
+  const denom= rows.reduce((a,r) => a + r[key], 0) || 1;
+
+  let T = {fob:0, frtins:0, duty:0, exc:0, clr:0, retail:0, landed:0};
+
+  rows.forEach(r => {
+    const share = r[key] / denom;
+    r.frtins = (frt + ins) * share;
+    r.cif    = r.fobQ + r.frtins;
+    r.duty   = isLocal ? 0 : r.cif * (r.duty0 = (+r.duty || 0)) / 100;
+    r.clr    = clr * share;
+    const rate = EXCISE[r.exc] || 0;
+    r.excise = rate === 0 ? 0
+             : eb === "rsp" ? (+r.base || 0) * rate * r.qty
+                            : (r.cif + r.duty) * rate;
+    r.total  = r.fobQ + r.frtins + r.duty + r.excise + r.clr;
+    r.unit   = r.total / r.qty;
+
+    const net = vat === "absorb" ? r.shelf / 1.05 : r.shelf;
+    r.net = net;
+    r.gp  = net > 0 ? (net - r.unit) / net * 100 : 0;
+
+    T.fob += r.fobQ; T.frtins += r.frtins; T.duty += r.duty;
+    T.exc += r.excise; T.clr += r.clr;
+    T.retail += net * r.qty; T.landed += r.total;
+  });
+  return {rows, T, isLocal, vat};
+}
+
+function gpClass(g){ return g < 8 ? "gp-bad" : g < 20 ? "gp-thin" : "gp-ok"; }
+
+function renderShip(){
+  const {rows, T, isLocal, vat} = calc();
+  $("routeHint").textContent = ROUTES[$("route").value].hint;
+  ["freight","insurance"].forEach(id => $(id).disabled = isLocal);
+
+  $("lineBody").innerHTML = rows.map((r,i) => {
+    const chips = [];
+    if(r.exc !== "none") chips.push(`<span class="chip c-exc">${EXC_LABEL[r.exc]}</span>`);
+    if(/GCC/.test(r.org)) chips.push(`<span class="chip c-gcc">GCC origin</span>`);
+    if(/Qatar/.test(r.org)) chips.push(`<span class="chip c-qa">Made in Qatar</span>`);
+    return `<tr>
+      <td><span class="pname">${r.name}</span><small>${r.ar} · ${r.org}</small> ${chips.join(" ")}</td>
+      <td><input data-i="${i}" data-k="qty"   type="number" value="${r.qty}"></td>
+      <td><input data-i="${i}" data-k="fob"   type="number" step="0.01" value="${r.fob}"></td>
+      <td><input data-i="${i}" data-k="kg"    type="number" step="0.01" value="${r.kg}"></td>
+      <td><input data-i="${i}" data-k="duty"  type="number" step="0.5"  value="${r.duty0 ?? r.duty}" ${isLocal?"disabled":""} style="width:56px"></td>
+      <td><select data-i="${i}" data-k="exc">${Object.keys(EXC_LABEL).map(k =>
+            `<option value="${k}" ${r.exc===k?"selected":""}>${EXC_LABEL[k]}</option>`).join("")}</select></td>
+      <td><input data-i="${i}" data-k="base"  type="number" step="0.25" value="${r.base}" ${r.exc==="none"?"disabled":""} style="width:66px"></td>
+      <td><input data-i="${i}" data-k="shelf" type="number" step="0.25" value="${r.shelf}" style="width:70px"></td>
+      <td class="calc">${n2(r.unit)}</td>
+      <td class="calc ${gpClass(r.gp)}">${r.gp.toFixed(1)}%</td>
+      <td><button class="del" data-del="${i}" aria-label="Remove line">×</button></td>
+    </tr>`;
+  }).join("");
+
+  const grand = T.fob + T.frtins + T.duty + T.exc + T.clr;
+  $("lineFoot").innerHTML = `<tr>
+    <td>Shipment total</td><td>${n0(rows.reduce((a,r)=>a+r.qty,0))}</td>
+    <td colspan="6" class="dim">FOB ${n0(T.fob)} · freight+ins ${n0(T.frtins)} · duty ${n0(T.duty)} · excise ${n0(T.exc)} · clearing ${n0(T.clr)}</td>
+    <td>${n0(grand)}</td>
+    <td class="${gpClass((T.retail-T.landed)/T.retail*100)}">${((T.retail-T.landed)/T.retail*100).toFixed(1)}%</td><td></td></tr>`;
+
+  const seg = [["s-fob",T.fob,"Goods"],["s-frt",T.frtins,"Freight"],["s-dut",T.duty,"Duty"],["s-exc",T.exc,"Excise"],["s-clr",T.clr,"Clearing"]];
+  $("stack").innerHTML = seg.map(([c,v]) => {
+    const pct = grand ? v/grand*100 : 0;
+    return pct < 0.6 ? "" : `<div class="${c}" style="width:${pct}%" title="QAR ${n0(v)}">${pct>7?pct.toFixed(0)+"%":""}</div>`;
+  }).join("");
+  $("stackTotal").textContent = "QAR " + n0(grand) + " committed";
+
+  const excPct = grand ? T.exc/grand*100 : 0;
+  const thin = rows.filter(r => r.gp < 20);
+  $("insight").innerHTML = T.exc > 0
+    ? `<b>QAR ${n0(T.exc)} of this shipment — ${excPct.toFixed(0)}% — is excise tax paid at the border before a single unit sells.</b>
+       That is working capital locked in stock, and it is the reason excise categories need faster turns than the rest of
+       the range. Excise belongs in landed cost and margin reporting; it must never be shown as a line on a customer receipt.`
+    : `<b>No excise exposure on this shipment.</b> Duty and freight are the whole story here, so the apportionment basis
+       you choose above is what decides each unit's true cost.`;
+
+  const vatNote = vat === "absorb"
+    ? {cls:"warn", v:(rows.reduce((a,r)=>a+r.gp,0)/rows.length).toFixed(1)+"%", l:"Avg GP if you hold shelf prices on VAT day"}
+    : vat === "pass"
+    ? {cls:"", v:(rows.reduce((a,r)=>a+r.gp,0)/rows.length).toFixed(1)+"%", l:"Avg GP with VAT added to shelf prices"}
+    : {cls:"", v:(rows.reduce((a,r)=>a+r.gp,0)/rows.length).toFixed(1)+"%", l:"Average gross profit across lines"};
+
+  $("kpis").innerHTML = [
+    {v:"QAR "+n0(grand), l:"Total landed cost"},
+    {v:"QAR "+n0(T.retail), l:vat==="absorb"?"Net retail value (VAT stripped)":"Retail value at shelf price"},
+    vatNote,
+    {v:(grand? (T.exc+T.duty)/grand*100 :0).toFixed(0)+"%", l:"Share of cost that is tax", cls:(T.exc+T.duty)/grand>0.3?"bad":""},
+    {v:thin.length, l:"Lines under 20% GP", cls:thin.length?"warn":""}
+  ].map(k => `<div class="kpi ${k.cls||""}"><div class="v">${k.v}</div><div class="l">${k.l}</div></div>`).join("");
+
+  document.querySelectorAll("#lineBody input, #lineBody select").forEach(el => {
+    el.oninput = () => {
+      const l = LINES[+el.dataset.i], k = el.dataset.k;
+      l[k] = k === "exc" ? el.value : (+el.value || 0);
+      renderShip();
+      if(k !== "exc"){ const again = document.querySelector(`[data-i="${el.dataset.i}"][data-k="${k}"]`); if(again){ again.focus(); again.setSelectionRange?.(9999,9999); } }
+    };
+  });
+  document.querySelectorAll("[data-del]").forEach(b =>
+    b.onclick = () => { LINES.splice(+b.dataset.del,1); renderShip(); });
+}
+
+$("addLine").onclick = () => {
+  LINES.push({name:"New line", ar:"صنف جديد", org:"—", qty:100, fob:1.00, kg:1.00, duty:5, exc:"none", base:0, shelf:10});
+  renderShip();
+};
+["fx","freight","insurance","clearing","inland","demurrage","basis","excBase","vatMode","route"]
+  .forEach(id => $(id).oninput = renderShip);
+
+/* ---------------- goods receipt gate ---------------- */
+function renderGrn(){
+  const rule = +$("slRule").value;
+  $("slRuleVal").textContent = rule + "%";
+  $("grnRows").innerHTML = GRN.map(g => {
+    const remain = Math.max(0, (g.life - g.used) / g.life * 100);
+    const fails = [];
+    if(remain < rule) fails.push(`only ${remain.toFixed(0)}% shelf life left on arrival (rule is ${rule}%)`);
+    if(g.temp !== null && g.band && (g.temp < g.band[0] || g.temp > g.band[1]))
+      fails.push(`received at ${g.temp} °C, outside ${g.band[0]} to ${g.band[1]} °C`);
+    if(g.halal !== null && g.halal < 0) fails.push(`halal certificate expired ${Math.abs(g.halal)} days ago`);
+    const reject = fails.some(f => /halal|outside/.test(f));
+    const verdict = fails.length === 0 ? ["v-pass","ACCEPT"] : reject ? ["v-rej","REJECT"] : ["v-hold","HOLD · CLAIM"];
+    const col = remain < rule ? "var(--maroon)" : remain < rule + 15 ? "var(--amber)" : "var(--gulf)";
+    return `<div class="grow">
+      <div class="who">${g.name}<small>lot ${g.lot} · ${g.used}d of ${g.life}d used in transit${g.temp!==null?` · ${g.temp} °C`:""}</small></div>
+      <span class="verdict ${verdict[0]}">${verdict[1]}</span>
+      <div class="bar"><i style="width:${remain}%;background:${col}"></i></div>
+      <div class="reason">${fails.length ? fails.join(" · ") : "Within shelf-life, temperature and certification limits."}</div>
+    </div>`;
+  }).join("");
+}
+$("slRule").oninput = renderGrn;
+
+/* ---------------- stock & expiry ---------------- */
+function renderStock(){
+  const s = $("season").value, S = SEASON[s];
+  $("seasonNote").textContent = S.label;
+  $("stockCtx").textContent = "7 SKUs · Al Sadd branch";
+  $("stockRows").innerHTML = STOCK.map(k => {
+    const daily = k.daily * (S.f[k.cat] || 1);
+    const cover = daily > 0 ? k.onhand / daily : 999;
+    const lead  = ROUTES[k.route].lead;
+    const orderBy = Math.floor(cover - lead);
+    let act, cls;
+    if(k.expiry <= cover){ act = `Will expire before it sells — mark down now, roughly ${Math.max(0, Math.round(k.onhand - daily*k.expiry))} units at risk`; cls = "v-rej"; }
+    else if(orderBy <= 0){ act = `Order today — ${lead}-day lead time already eats the cover`; cls = "v-rej"; }
+    else if(orderBy <= 5){ act = `Order within ${orderBy} day${orderBy===1?"":"s"} to avoid a gap`; cls = "v-hold"; }
+    else { act = `Comfortable — order in about ${orderBy} days`; cls = "v-pass"; }
+    const need = Math.max(0, Math.round(daily * (lead + 14) - k.onhand));
+    const pct = Math.min(100, cover / 45 * 100);
+    return `<div class="grow">
+      <div class="who">${k.name}<small>${n0(k.onhand)} on hand · ${daily.toFixed(0)}/day · ${lead}d lead · expires in ${k.expiry}d</small></div>
+      <span class="verdict ${cls}">${cover>900?"—":cover.toFixed(0)+"d cover"}</span>
+      <div class="bar"><i style="width:${pct}%;background:${cls==="v-rej"?"var(--maroon)":cls==="v-hold"?"var(--amber)":"var(--gulf)"}"></i></div>
+      <div class="reason">${act}${need?` · suggested order ${n0(need)} units`:""}</div>
+    </div>`;
+  }).join("");
+}
+$("season").oninput = renderStock;
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
+  document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  ["ship","grn","stock"].forEach(t => $("tab-"+t).classList.toggle("hidden", t !== b.dataset.tab));
+});
+
+renderShip(); renderGrn(); renderStock();
+</script>
+</body>
+</html>

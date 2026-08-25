@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUQ — Qatar Hospitality &amp; Retail OS</title>
+<meta name="description" content="A point of sale and inventory platform built for Qatar: dormant VAT engine, excise in landed cost, Himyan and Fawran rails, WPS payroll, prayer-aware operations.">
+<meta property="og:title" content="SUQ — Qatar Hospitality &amp; Retail OS">
+<meta property="og:description" content="Built Qatar-first. Not a Dubai POS with the currency swapped.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --maroon:#8A1538; --maroon-deep:#5E0E26; --maroon-tint:#F6E9ED;
+  --ink:#14161A; --gypsum:#F1F2EE; --card:#FFF;
+  --line:#DEDFD8; --line-soft:#EBECE6;
+  --gulf:#0E6E6E; --gulf-tint:#E4F0EF;
+  --amber:#A96A08; --amber-tint:#FBF0DE;
+  --muted:#6B6F76; --r:12px;
+  --sans:'IBM Plex Sans Arabic','Segoe UI',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);background:var(--gypsum);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.shell{max-width:1000px;margin:0 auto;padding:26px 16px 60px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.mast{display:flex;align-items:baseline;gap:10px;margin-bottom:34px}
+.mast b{font-size:24px;font-weight:700;letter-spacing:-.02em}
+.mast span{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.mast .ar{margin-inline-start:auto;color:var(--muted);font-size:15px}
+
+/* hero: the thesis is the excise cost stack */
+.hero{margin-bottom:40px}
+.hero h1{font-size:clamp(30px,5.4vw,50px);line-height:1.05;letter-spacing:-.03em;margin:0 0 16px;font-weight:600;max-width:17ch}
+.hero h1 em{font-style:normal;color:var(--maroon)}
+.hero p{font-size:17px;color:#3C4046;max-width:62ch;margin:0 0 22px}
+.stack{display:flex;height:44px;border-radius:10px;overflow:hidden;border:1px solid var(--line);margin-bottom:9px}
+.stack div{display:grid;place-items:center;color:#fff;font-family:var(--mono);font-size:12px;font-weight:600}
+.stackcap{font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+.stackcap i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-inline-end:6px}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px}
+@media(max-width:720px){.cards{grid-template-columns:1fr}}
+.demo{
+  display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);padding:20px;transition:border-color .12s ease,transform .1s ease;
+}
+.demo:hover{border-color:var(--maroon);transform:translateY(-2px)}
+.demo .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--maroon);font-weight:700}
+.demo h2{margin:8px 0 8px;font-size:21px;font-weight:600;letter-spacing:-.01em}
+.demo p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.demo ul{margin:0;padding:0;list-style:none;font-size:13px}
+.demo li{padding:5px 0;border-top:1px solid var(--line-soft);display:flex;gap:9px}
+.demo li b{color:var(--maroon);font-weight:600}
+.demo .go{display:inline-block;margin-top:14px;font-weight:600;font-size:14px;color:var(--maroon)}
+
+.why{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:18px}
+.why h3{margin:0 0 14px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.why dl{margin:0;display:grid;grid-template-columns:150px 1fr;gap:2px 18px}
+@media(max-width:620px){.why dl{grid-template-columns:1fr}}
+.why dt{font-weight:600;padding:9px 0;border-top:1px solid var(--line-soft)}
+.why dd{margin:0;padding:9px 0;border-top:1px solid var(--line-soft);color:#3C4046}
+@media(max-width:620px){.why dd{border-top:0;padding-top:0}}
+.why dd small{color:var(--muted)}
+
+.doc{background:var(--maroon-deep);color:#F3E7EA;border-radius:var(--r);padding:20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;text-decoration:none}
+.doc b{font-size:17px;font-weight:600;display:block}
+.doc span{opacity:.72;font-size:14px}
+.doc .btn{margin-inline-start:auto;background:#fff;color:var(--maroon-deep);padding:9px 16px;border-radius:8px;font-weight:600;font-size:14px}
+
+footer{margin-top:34px;color:var(--muted);font-size:12px;line-height:1.6;border-top:1px solid var(--line);padding-top:16px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="mast">
+    <b>SUQ</b><span>Qatar Hospitality &amp; Retail OS</span><span class="ar">سوق</span>
+  </header>
+
+  <section class="hero">
+    <h1>A third of that shipment is <em>tax paid at the border</em> before a single unit sells.</h1>
+    <p>
+      Every point of sale sold in Doha is a Dubai or Riyadh product with the currency swapped. But Qatar has no VAT,
+      does have excise, runs its own payment rails, pays wages through WPS, and reschedules itself five times a day.
+      SUQ is built for that, and exports outward — not the reverse.
+    </p>
+    <div class="stack" aria-label="Landed cost breakdown of a sample import shipment">
+      <div style="width:41%;background:#3A4A5C">41%</div>
+      <div style="width:9%;background:#B79A5E">9%</div>
+      <div style="width:4%;background:#0E6E6E"></div>
+      <div style="width:36%;background:#A96A08">36%</div>
+      <div style="width:10%;background:#8E9299">10%</div>
+    </div>
+    <div class="stackcap">
+      <span><i style="background:#3A4A5C"></i>Goods</span>
+      <span><i style="background:#B79A5E"></i>Freight &amp; insurance</span>
+      <span><i style="background:#0E6E6E"></i>Customs duty</span>
+      <span><i style="background:#A96A08"></i>Excise tax</span>
+      <span><i style="background:#8E9299"></i>Clearing &amp; inland</span>
+    </div>
+  </section>
+
+  <div class="cards">
+    <a class="demo" href="pos.html">
+      <span class="eyebrow">Live demo</span>
+      <h2>The till</h2>
+      <p>Restaurant and supermarket editions on one core, fully bilingual.</p>
+      <ul>
+        <li><b>عربي</b> Flips the entire till to right-to-left</li>
+        <li><b>VAT</b> Dormant engine — one switch makes it a tax invoice</li>
+        <li><b>Rails</b> Himyan, Fawran, QMP, aggregators, with cost per tender</li>
+        <li><b>Athan</b> Live prayer countdown and service hold</li>
+      </ul>
+      <span class="go">Open the till →</span>
+    </a>
+
+    <a class="demo" href="inventory.html">
+      <span class="eyebrow">Live demo</span>
+      <h2>Landed cost &amp; inventory</h2>
+      <p>Where Qatari retailers actually lose money. Every figure is editable.</p>
+      <ul>
+        <li><b>Apportion</b> By value, weight or units — watch costs move</li>
+        <li><b>Excise</b> Capitalised into stock, never on a receipt</li>
+        <li><b>Receipt</b> Shelf-life gate, cold chain, halal certificates</li>
+        <li><b>Cover</b> Hijri-anchored demand against route lead times</li>
+      </ul>
+      <span class="go">Open the cost engine →</span>
+    </a>
+  </div>
+
+  <section class="why">
+    <h3>What makes it Qatar-specific</h3>
+    <dl>
+      <dt>Tax</dt>
+      <dd>No VAT is enacted. Excise is live at 50–100% and paid at import. The engine ships built and dormant, ready for the day the law lands. <small>E-invoicing draft law approved May 2026.</small></dd>
+      <dt>Payments</dt>
+      <dd>NAPS and Himyan, QPay, QMP, and Fawran — the cheapest rail in the country at a flat fee. The till shows what each tender costs you.</dd>
+      <dt>People</dt>
+      <dd>WPS payroll files, QID and work-permit expiry, Baladiya health cards, and staff screens in the language each person actually speaks.</dd>
+      <dt>Calendar</dt>
+      <dd>Prayer times drive breaks and service holds. Ramadan moves eleven days earlier each year, so forecasting runs on the Hijri calendar.</dd>
+      <dt>Supply</dt>
+      <dd>Almost everything is imported. Shelf life is consumed in transit, so expiry management starts at the port, not the shelf.</dd>
+    </dl>
+  </section>
+
+  <a class="doc" href="blueprint.md">
+    <div>
+      <b>Full product blueprint</b>
+      <span>Module map, data model, roadmap, commercial model, and the open questions to verify with the GTA.</span>
+    </div>
+    <span class="btn">Read it</span>
+  </a>
+
+  <footer>
+    Prototypes with sample data. Rates and figures are illustrative and are not tax, customs, legal or pricing advice —
+    confirm current rules with the General Tax Authority, the Ministry of Commerce and Industry, and your clearing agent.
+    Tax position reflects Qatar as at August 2026.
+  </footer>
+</div>
+</body>
+</html>

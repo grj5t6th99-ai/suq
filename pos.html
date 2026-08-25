@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUQ — Qatar Hospitality &amp; Retail OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --maroon:#8A1538;
+  --maroon-deep:#5E0E26;
+  --maroon-tint:#F6E9ED;
+  --ink:#14161A;
+  --gypsum:#F1F2EE;
+  --card:#FFFFFF;
+  --line:#DEDFD8;
+  --line-soft:#EBECE6;
+  --gulf:#0E6E6E;
+  --gulf-tint:#E4F0EF;
+  --amber:#A96A08;
+  --amber-tint:#FBF0DE;
+  --muted:#6B6F76;
+  --r:10px;
+  --sans:'IBM Plex Sans Arabic','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans);
+  background:var(--gypsum);
+  color:var(--ink);
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.ar{font-weight:400}
+
+/* ---------- shell ---------- */
+.shell{max-width:1240px;margin:0 auto;padding:14px}
+
+/* ---------- masthead ---------- */
+.mast{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.brand{display:flex;align-items:baseline;gap:8px}
+.brand b{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.brand .sub{font-size:11px;color:var(--muted);letter-spacing:.10em;text-transform:uppercase}
+.spacer{flex:1}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:3px;gap:3px}
+.seg button{padding:7px 13px;border-radius:7px;font-weight:500;color:var(--muted);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--maroon);color:#fff}
+.toggles{display:flex;gap:6px;flex-wrap:wrap}
+.tgl{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:7px 12px;display:flex;align-items:center;gap:8px;font-weight:500}
+.tgl .dot{width:8px;height:8px;border-radius:50%;background:#C9CBC4;flex:none}
+.tgl[aria-pressed="true"]{border-color:var(--gulf);background:var(--gulf-tint);color:var(--gulf)}
+.tgl[aria-pressed="true"] .dot{background:var(--gulf)}
+.tgl.warn[aria-pressed="true"]{border-color:var(--amber);background:var(--amber-tint);color:var(--amber)}
+.tgl.warn[aria-pressed="true"] .dot{background:var(--amber)}
+
+/* ---------- signature: athan band ---------- */
+.athan{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:var(--maroon-deep);color:#F3E7EA;
+  border-radius:var(--r);padding:9px 14px;margin-bottom:12px;
+  position:relative;overflow:hidden;
+}
+.athan::after{
+  content:"";position:absolute;inset-block:0;inset-inline-end:0;width:38%;
+  background:linear-gradient(to var(--grad-dir,left),rgba(255,255,255,.09),transparent);
+  pointer-events:none;
+}
+.athan .label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.62}
+.athan .next{font-weight:600;font-size:15px}
+.athan .cd{font-family:var(--mono);font-size:15px;font-weight:500}
+.athan .rail{display:flex;gap:0;flex:1;min-width:260px;justify-content:flex-end;flex-wrap:wrap}
+.athan .p{padding:2px 11px;font-size:12px;opacity:.55;border-inline-start:1px solid rgba(255,255,255,.16)}
+.athan .p.on{opacity:1;font-weight:600}
+.athan .p .t{font-family:var(--mono);display:block;font-size:11px;opacity:.8}
+.hold{background:var(--amber);color:#fff;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:1fr 372px;gap:12px;align-items:start}
+@media(max-width:940px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+.card h2{
+  margin:0;padding:11px 14px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);border-bottom:1px solid var(--line-soft);font-weight:600;
+  display:flex;align-items:center;gap:8px;
+}
+.card h2 .tag{margin-inline-start:auto;letter-spacing:0;text-transform:none;font-size:11px}
+
+/* ---------- catalogue ---------- */
+.cats{display:flex;gap:6px;padding:11px 14px;flex-wrap:wrap;border-bottom:1px solid var(--line-soft)}
+.cats button{padding:6px 12px;border-radius:99px;border:1px solid var(--line);color:var(--muted);font-weight:500}
+.cats button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:9px;padding:12px}
+.tile{
+  border:1px solid var(--line);border-radius:var(--r);padding:10px;text-align:start;
+  background:var(--card);display:flex;flex-direction:column;gap:2px;min-height:104px;
+  transition:transform .08s ease,border-color .12s ease,box-shadow .12s ease;
+}
+.tile:hover{border-color:var(--maroon);box-shadow:0 2px 0 var(--maroon-tint)}
+.tile:active{transform:translateY(1px)}
+.tile .en{font-weight:600;line-height:1.25}
+.tile .arn{color:var(--muted);font-size:13px}
+.tile .price{margin-top:auto;font-family:var(--mono);font-weight:600;padding-top:6px}
+.tile .price small{font-weight:400;color:var(--muted);font-size:11px}
+.flags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.flag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;letter-spacing:.02em}
+.f-exc{background:var(--amber-tint);color:var(--amber)}
+.f-qa{background:var(--maroon-tint);color:var(--maroon)}
+.f-res{background:#EEE9F4;color:#5B4B84}
+.f-wt{background:var(--gulf-tint);color:var(--gulf)}
+
+/* ---------- ticket ---------- */
+.lines{max-height:296px;overflow:auto}
+.line{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:9px 14px;border-bottom:1px solid var(--line-soft)}
+.line .nm{font-weight:500}
+.line .nm span{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.line .amt{font-family:var(--mono);font-weight:600}
+.qty{display:flex;align-items:center;gap:8px;grid-column:1/-1;margin-top:2px}
+.qty button{width:24px;height:24px;border:1px solid var(--line);border-radius:6px;line-height:1;color:var(--muted)}
+.qty button:hover{border-color:var(--ink);color:var(--ink)}
+.qty .n{font-family:var(--mono);min-width:22px;text-align:center}
+.qty .unit{color:var(--muted);font-size:12px;margin-inline-start:auto;font-family:var(--mono)}
+.empty{padding:34px 18px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);margin-bottom:4px}
+
+.totals{padding:11px 14px;border-top:1px solid var(--line)}
+.tr{display:flex;justify-content:space-between;padding:3px 0;color:var(--muted)}
+.tr span:last-child{font-family:var(--mono);color:var(--ink)}
+.tr.mut span:last-child{color:var(--muted)}
+.tr.grand{margin-top:7px;padding-top:9px;border-top:1px solid var(--line);color:var(--ink);font-weight:700;font-size:19px}
+.tr.grand span:last-child{font-size:22px}
+.note{font-size:11px;color:var(--muted);padding:0 14px 11px;line-height:1.4}
+
+.tenders{padding:11px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tender{border:1px solid var(--line);border-radius:8px;padding:9px;text-align:start}
+.tender:hover{border-color:var(--ink)}
+.tender[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.tender b{display:block;font-weight:600}
+.tender small{color:var(--muted);font-size:11px;font-family:var(--mono)}
+.tender[aria-pressed="true"] small{color:#B9BCC2}
+.pay{margin:0 14px 14px;width:calc(100% - 28px);background:var(--maroon);color:#fff;padding:13px;border-radius:8px;font-weight:600;font-size:15px}
+.pay:hover{background:var(--maroon-deep)}
+.pay:disabled{background:#C9CBC4;cursor:not-allowed}
+
+/* ---------- receipt ---------- */
+.receipt{padding:14px;font-family:var(--mono);font-size:12px;background:#FCFCFA;border-top:1px solid var(--line)}
+.receipt .hd{text-align:center;margin-bottom:9px}
+.receipt .hd b{font-size:13px;letter-spacing:.06em}
+.receipt .rl{display:flex;justify-content:space-between;gap:10px}
+.receipt .sep{border-top:1px dashed #C6C8C0;margin:8px 0}
+.receipt .qr{
+  width:64px;height:64px;margin:9px auto 0;border:1px solid var(--line);border-radius:6px;
+  display:grid;place-items:center;font-size:9px;color:var(--muted);text-align:center;line-height:1.2;
+  font-family:var(--sans);padding:5px;
+}
+.stamp{
+  margin-top:9px;padding:7px;border-radius:6px;text-align:center;font-family:var(--sans);
+  font-size:11px;font-weight:600;background:var(--gulf-tint);color:var(--gulf);
+}
+.stamp.vat{background:var(--maroon-tint);color:var(--maroon)}
+
+/* ---------- compliance dock ---------- */
+.dock{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:12px;padding:12px}
+.doc{border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.doc h3{margin:0 0 9px;font-size:13px;font-weight:600}
+.row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line-soft);align-items:center}
+.row:first-of-type{border-top:0}
+.row .who{font-weight:500}
+.row .who span{display:block;font-size:11px;color:var(--muted);font-weight:400}
+.pill{font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.ok{background:var(--gulf-tint);color:var(--gulf)}
+.soon{background:var(--amber-tint);color:var(--amber)}
+.bad{background:var(--maroon-tint);color:var(--maroon)}
+.check{display:flex;gap:9px;padding:6px 0;align-items:flex-start}
+.check i{font-style:normal;color:var(--gulf);font-weight:700}
+.check.pending i{color:var(--muted)}
+.foot{padding:12px 14px;color:var(--muted);font-size:11px;border-top:1px solid var(--line-soft);line-height:1.5}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:500;color:var(--muted)}
+.tabs button[aria-pressed="true"]{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.hidden{display:none !important}
+:focus-visible{outline:2px solid var(--maroon);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="mast">
+    <div class="brand">
+      <b>SUQ</b><span class="sub" id="brandSub">Qatar Retail OS</span>
+    </div>
+    <div class="seg" role="group" aria-label="Edition">
+      <button id="edTable" aria-pressed="true">SUQ Table</button>
+      <button id="edShelf" aria-pressed="false">SUQ Shelf</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="toggles">
+      <button class="tgl" id="tVat" aria-pressed="false"><i class="dot"></i><span id="tVatLbl">VAT 0%</span></button>
+      <button class="tgl warn" id="tRam" aria-pressed="false"><i class="dot"></i><span id="tRamLbl">Ramadan</span></button>
+      <button class="tgl" id="tLang" aria-pressed="false"><i class="dot"></i><span id="tLangLbl">عربي</span></button>
+    </div>
+  </header>
+
+  <div class="athan" id="athan">
+    <div>
+      <div class="label" id="athanLbl">Next prayer · Doha</div>
+      <div><span class="next" id="athanNext">—</span> <span class="cd" id="athanCd">—</span></div>
+    </div>
+    <div class="rail" id="athanRail"></div>
+    <div id="athanHold"></div>
+  </div>
+
+  <div class="tabs">
+    <button id="tabTill" aria-pressed="true">Till</button>
+    <button id="tabDock" aria-pressed="false">Compliance dock</button>
+  </div>
+
+  <!-- ================= TILL ================= -->
+  <div class="grid" id="viewTill">
+    <section class="card">
+      <h2><span id="catalogTitle">Menu</span><span class="tag num" id="itemCount"></span></h2>
+      <div class="cats" id="cats"></div>
+      <div class="tiles" id="tiles"></div>
+      <div class="foot" id="catalogFoot"></div>
+    </section>
+
+    <aside class="card">
+      <h2><span id="ticketTitle">Ticket</span><span class="tag num" id="ticketNo">QT-2026-000148</span></h2>
+      <div class="lines" id="lines"></div>
+      <div class="totals" id="totals"></div>
+      <div class="note" id="taxNote"></div>
+      <div class="tenders" id="tenders"></div>
+      <button class="pay" id="payBtn" disabled>Take payment</button>
+      <div class="receipt" id="receipt"></div>
+    </aside>
+  </div>
+
+  <!-- ============== COMPLIANCE DOCK ============== -->
+  <section class="card hidden" id="viewDock">
+    <h2>Compliance dock · Al Sadd branch<span class="tag">Inspection Mode ready</span></h2>
+    <div class="dock" id="dock"></div>
+    <div class="foot">
+      Sample data for demonstration. In production these records sync from the workforce, supplier and cold-chain
+      modules, and Inspection Mode prints the full pack as one bilingual PDF.
+    </div>
+  </section>
+
+  <p class="foot" style="border:0;padding:14px 2px">
+    Prototype — illustrative rates and sample data. Tax behaviour reflects Qatar as at August 2026: no VAT enacted,
+    excise embedded in landed cost, e-invoicing draft law approved May 2026. Confirm all rates with the General Tax
+    Authority before production use.
+  </p>
+</div>
+
+<script>
+"use strict";
+
+/* ---------------- state ---------------- */
+const S = {
+  edition:"table", lang:"en", vat:false, ramadan:false,
+  cat:"all", cart:[], tender:"cash", view:"till"
+};
+const VAT_RATE = 0.05;      // dormant until enacted
+const CASH_ROUND = 0.25;    // nearest 25 dirhams
+const money = n => n.toFixed(2);
+
+/* ---------------- catalogue ---------------- */
+// excise: levied at import/production — shown for margin, never added at the till
+const TABLE = [
+  {id:"t1", cat:"mains",  en:"Machboos Laham",      ar:"مجبوس لحم",        p:45, qa:true},
+  {id:"t2", cat:"mains",  en:"Mixed Grill Platter", ar:"مشاوي مشكلة",      p:85},
+  {id:"t3", cat:"mains",  en:"Chicken Shawarma",    ar:"شاورما دجاج",      p:12},
+  {id:"t4", cat:"mains",  en:"Balaleet",            ar:"بلاليط",           p:18},
+  {id:"t5", cat:"drinks", en:"Karak Chai",          ar:"كرك",              p:3},
+  {id:"t6", cat:"drinks", en:"Fresh Orange Juice",  ar:"عصير برتقال طازج", p:15},
+  {id:"t7", cat:"drinks", en:"Still Water 500ml",   ar:"ماء 500 مل",       p:2, qa:true},
+  {id:"t8", cat:"drinks", en:"Cola Can 330ml",      ar:"كولا 330 مل",      p:5,  exc:"Excise 50%"},
+  {id:"t9", cat:"drinks", en:"Energy Drink 250ml",  ar:"مشروب طاقة",       p:12, exc:"Excise 100%"},
+  {id:"t10",cat:"sweets", en:"Luqaimat",            ar:"لقيمات",           p:20},
+  {id:"t11",cat:"sweets", en:"Umm Ali",             ar:"أم علي",           p:24},
+  {id:"t12",cat:"shisha", en:"Shisha Session",      ar:"جلسة شيشة",        p:60, res:"Licensed area"}
+];
+const RAMADAN_ONLY = [
+  {id:"r1", cat:"mains",  en:"Iftar Set Menu",   ar:"وجبة إفطار",  p:75, ram:true},
+  {id:"r2", cat:"mains",  en:"Suhoor Platter",   ar:"طبق سحور",    p:55, ram:true},
+  {id:"r3", cat:"drinks", en:"Vimto Jug",        ar:"إبريق فيمتو", p:16, ram:true}
+];
+const SHELF = [
+  {id:"s1", cat:"fresh",  en:"Baladna Fresh Milk 1L",  ar:"حليب بلدنا طازج 1 لتر", p:6.5,  qa:true},
+  {id:"s2", cat:"fresh",  en:"Laban 1L",               ar:"لبن 1 لتر",             p:5.5,  qa:true},
+  {id:"s3", cat:"fresh",  en:"Tomatoes",               ar:"طماطم",                 p:7,    wt:true},
+  {id:"s4", cat:"meat",   en:"Widam Lamb Chops",       ar:"ريش غنم ودام",          p:48,   wt:true, qa:true, halal:true},
+  {id:"s5", cat:"meat",   en:"Chicken Breast",         ar:"صدور دجاج",             p:22,   wt:true, halal:true},
+  {id:"s6", cat:"pantry", en:"Arabic Bread ×5",        ar:"خبز عربي ×5",           p:3},
+  {id:"s7", cat:"pantry", en:"Basmati Rice 5kg",       ar:"أرز بسمتي 5 كجم",       p:42},
+  {id:"s8", cat:"pantry", en:"Khalas Dates 1kg",       ar:"تمر خلاص 1 كجم",        p:35, qa:true},
+  {id:"s9", cat:"drinks", en:"Cola 6-pack",            ar:"كولا 6 علب",            p:22, exc:"Excise 50%"},
+  {id:"s10",cat:"drinks", en:"Energy Drink 4-pack",    ar:"مشروب طاقة 4 علب",      p:45, exc:"Excise 100%"},
+  {id:"s11",cat:"restr",  en:"Cigarettes 20s",         ar:"سجائر 20",              p:25, exc:"Excise 100%", res:"Age 18+"},
+  {id:"s12",cat:"other",  en:"Reusable Carrier Bag",   ar:"كيس متعدد الاستخدام",   p:1,  bag:true}
+];
+const CATS = {
+  table:[["all","All","الكل"],["mains","Mains","الأطباق"],["drinks","Drinks","المشروبات"],["sweets","Sweets","الحلويات"],["shisha","Shisha","الشيشة"]],
+  shelf:[["all","All","الكل"],["fresh","Fresh","طازج"],["meat","Butchery","اللحوم"],["pantry","Pantry","بقالة"],["drinks","Drinks","المشروبات"],["restr","Restricted","مقيّد"],["other","Other","أخرى"]]
+};
+
+/* ---------------- tenders ---------------- */
+const TENDERS = [
+  {id:"cash",   en:"Cash",              ar:"نقداً",             rate:t=>t*0.006,             note:"handling ~0.6%"},
+  {id:"himyan", en:"Himyan / NAPS",     ar:"هميان / نابس",      rate:t=>t*0.0075,            note:"debit ~0.75%"},
+  {id:"card",   en:"Visa / Mastercard", ar:"فيزا / ماستركارد",  rate:t=>t*0.0225,            note:"MDR ~2.25%"},
+  {id:"fawran", en:"Fawran QR",         ar:"فوران QR",          rate:t=>t<=1000?0.5:2,       note:"QAR 0.50 / 2.00"},
+  {id:"qmp",    en:"QMP Wallet",        ar:"محفظة QMP",         rate:t=>t*0.01,              note:"wallet ~1.0%"},
+  {id:"agg",    en:"Talabat / Snoonu",  ar:"طلبات / سنونو",     rate:t=>t*0.28,              note:"commission ~28%"}
+];
+
+/* ---------------- prayer band ---------------- */
+const PRAYERS = [["Fajr","الفجر",3,55],["Dhuhr","الظهر",11,35],["Asr","العصر",15,5],["Maghrib","المغرب",18,0],["Isha","العشاء",19,30]];
+
+function renderAthan(){
+  const now = new Date();
+  const mins = now.getHours()*60 + now.getMinutes();
+  let idx = PRAYERS.findIndex(p => p[2]*60+p[3] > mins);
+  if(idx === -1) idx = 0;
+  const p = PRAYERS[idx];
+  let delta = (p[2]*60+p[3]) - mins;
+  if(delta < 0) delta += 1440;
+  const h = Math.floor(delta/60), m = delta%60, s = 59 - now.getSeconds();
+
+  document.getElementById("athanLbl").textContent =
+    S.lang==="ar" ? "الصلاة القادمة · الدوحة" : "Next prayer · Doha";
+  document.getElementById("athanNext").textContent = S.lang==="ar" ? p[1] : p[0];
+  document.getElementById("athanCd").textContent =
+    (h?h+"h ":"") + String(m).padStart(2,"0") + "m " + String(s).padStart(2,"0") + "s";
+
+  document.getElementById("athanRail").innerHTML = PRAYERS.map((q,i)=>
+    `<div class="p ${i===idx?"on":""}">${S.lang==="ar"?q[1]:q[0]}
+      <span class="t">${String(q[2]).padStart(2,"0")}:${String(q[3]).padStart(2,"0")}</span></div>`).join("");
+
+  const isFri = now.getDay() === 5;
+  const hold = document.getElementById("athanHold");
+  if(delta <= 15){
+    hold.innerHTML = `<span class="hold">${S.lang==="ar"?"إيقاف الخدمة تلقائياً":"Service hold arming"}</span>`;
+  } else if(isFri && mins > 660 && mins < 780){
+    hold.innerHTML = `<span class="hold">${S.lang==="ar"?"إغلاق صلاة الجمعة":"Jumu'ah closure"}</span>`;
+  } else hold.innerHTML = "";
+}
+
+/* ---------------- catalogue render ---------------- */
+function catalogue(){
+  let items = S.edition === "table" ? TABLE.slice() : SHELF.slice();
+  if(S.edition === "table" && S.ramadan) items = RAMADAN_ONLY.concat(items);
+  return items;
+}
+function renderCats(){
+  const list = CATS[S.edition];
+  document.getElementById("cats").innerHTML = list.map(([id,en,ar]) =>
+    `<button data-cat="${id}" aria-pressed="${S.cat===id}">${S.lang==="ar"?ar:en}</button>`).join("");
+  document.querySelectorAll("#cats button").forEach(b =>
+    b.onclick = () => { S.cat = b.dataset.cat; render(); });
+}
+function renderTiles(){
+  const items = catalogue().filter(i => S.cat === "all" || i.cat === S.cat);
+  document.getElementById("itemCount").textContent = items.length + (S.lang==="ar"?" صنف":" items");
+  document.getElementById("tiles").innerHTML = items.map(i => {
+    const flags = [];
+    if(i.exc)   flags.push(`<span class="flag f-exc">${i.exc}</span>`);
+    if(i.qa)    flags.push(`<span class="flag f-qa">${S.lang==="ar"?"صنع في قطر":"Made in Qatar"}</span>`);
+    if(i.halal) flags.push(`<span class="flag f-qa">${S.lang==="ar"?"حلال":"Halal cert"}</span>`);
+    if(i.res)   flags.push(`<span class="flag f-res">${i.res}</span>`);
+    if(i.wt)    flags.push(`<span class="flag f-wt">${S.lang==="ar"?"بالوزن":"By weight"}</span>`);
+    if(i.ram)   flags.push(`<span class="flag f-qa">${S.lang==="ar"?"رمضان":"Ramadan"}</span>`);
+    if(i.bag)   flags.push(`<span class="flag f-wt">${S.lang==="ar"?"رسوم الأكياس":"Bag levy"}</span>`);
+    return `<button class="tile" data-add="${i.id}">
+      <span class="en">${S.lang==="ar"?i.ar:i.en}</span>
+      <span class="arn ar">${S.lang==="ar"?i.en:i.ar}</span>
+      <span class="flags">${flags.join("")}</span>
+      <span class="price">${money(i.p)} <small>QAR${i.wt?" / kg":""}</small></span>
+    </button>`;
+  }).join("");
+  document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => add(b.dataset.add));
+}
+
+/* ---------------- cart ---------------- */
+function add(id){
+  const item = catalogue().find(i => i.id === id);
+  if(!item) return;
+  const line = S.cart.find(l => l.id === id);
+  if(line) line.q += item.wt ? 0.25 : 1;
+  else S.cart.push({...item, q: item.wt ? 0.5 : 1});
+  render();
+}
+function bump(id, d){
+  const l = S.cart.find(x => x.id === id);
+  if(!l) return;
+  l.q = Math.round((l.q + d * (l.wt ? 0.25 : 1)) * 100) / 100;
+  if(l.q <= 0) S.cart = S.cart.filter(x => x.id !== id);
+  render();
+}
+function totals(){
+  const net   = S.cart.reduce((a,l) => a + l.p * l.q, 0);
+  const vat   = S.vat ? net * VAT_RATE : 0;
+  const gross = net + vat;
+  const round = S.tender === "cash" ? Math.round(gross / CASH_ROUND) * CASH_ROUND - gross : 0;
+  const due   = gross + round;
+  const t     = TENDERS.find(x => x.id === S.tender);
+  return { net, vat, gross, round, due, cost: due ? t.rate(due) : 0 };
+}
+function renderTicket(){
+  const L = S.lang === "ar";
+  document.getElementById("ticketTitle").textContent =
+    S.edition === "table" ? (L?"الطلب":"Ticket") : (L?"السلة":"Basket");
+  document.getElementById("catalogTitle").textContent =
+    S.edition === "table" ? (L?"قائمة الطعام":"Menu") : (L?"المنتجات":"Products");
+
+  const box = document.getElementById("lines");
+  if(!S.cart.length){
+    box.innerHTML = `<div class="empty"><b>${L?"لا توجد أصناف بعد":"Nothing on the ticket yet"}</b>
+      ${L?"اختر صنفاً للبدء":"Pick an item to start"}</div>`;
+  } else {
+    box.innerHTML = S.cart.map(l => `<div class="line">
+      <div class="nm">${L?l.ar:l.en}<span class="ar">${L?l.en:l.ar}</span></div>
+      <div class="amt">${money(l.p * l.q)}</div>
+      <div class="qty">
+        <button data-m="${l.id}" aria-label="less">−</button>
+        <span class="n">${l.wt ? l.q.toFixed(2) + " kg" : l.q}</span>
+        <button data-p="${l.id}" aria-label="more">+</button>
+        <span class="unit">@ ${money(l.p)}${l.wt?"/kg":""}</span>
+      </div></div>`).join("");
+    box.querySelectorAll("[data-m]").forEach(b => b.onclick = () => bump(b.dataset.m,-1));
+    box.querySelectorAll("[data-p]").forEach(b => b.onclick = () => bump(b.dataset.p, 1));
+  }
+
+  const t = totals();
+  const rows = [
+    [L?"المجموع":"Subtotal", money(t.net)],
+    S.vat ? [L?"ضريبة القيمة المضافة 5%":"VAT 5%", money(t.vat)]
+          : [L?"ضريبة القيمة المضافة":"VAT", L?"غير مطبقة":"Not applicable"],
+  ];
+  if(Math.abs(t.round) >= 0.001) rows.push([L?"تقريب نقدي 0.25":"Cash rounding 0.25", (t.round>0?"+":"") + money(t.round)]);
+  document.getElementById("totals").innerHTML =
+    rows.map(r => `<div class="tr ${r[1].toString().match(/[A-Zء-ي]/)?"mut":""}"><span>${r[0]}</span><span>${r[1]}</span></div>`).join("") +
+    `<div class="tr grand"><span>${L?"المستحق":"Due"}</span><span>${money(t.due)}</span></div>`;
+
+  document.getElementById("taxNote").textContent = S.vat
+    ? (L?"محرك الضريبة مُفعّل — يصدر فاتورة ضريبية بحقل الرقم الضريبي ورمز QR.":"Tax engine live — issues a tax invoice with buyer TRN and QR payload.")
+    : (L?"لا توجد ضريبة قيمة مضافة في قطر حالياً. المحرك جاهز ويُفعّل بإعداد واحد.":"No VAT is enacted in Qatar today. The engine is built and dormant — one config row turns the estate compliant.");
+
+  document.getElementById("tenders").innerHTML = TENDERS.map(x => {
+    const c = t.due ? x.rate(t.due) : 0;
+    return `<button class="tender" data-t="${x.id}" aria-pressed="${S.tender===x.id}">
+      <b>${L?x.ar:x.en}</b><small>${t.due ? (L?"التكلفة ":"cost ") + money(c) : x.note}</small></button>`;
+  }).join("");
+  document.querySelectorAll("[data-t]").forEach(b =>
+    b.onclick = () => { S.tender = b.dataset.t; render(); });
+
+  const pay = document.getElementById("payBtn");
+  pay.disabled = !S.cart.length;
+  pay.textContent = S.cart.length
+    ? (L?`تحصيل ${money(t.due)} ر.ق`:`Take ${money(t.due)} QAR`)
+    : (L?"تحصيل الدفع":"Take payment");
+
+  renderReceipt(t);
+}
+
+function renderReceipt(t){
+  const L = S.lang === "ar";
+  const head = S.vat ? (L?"فاتورة ضريبية":"TAX INVOICE") : (L?"إيصال بيع":"SALES RECEIPT");
+  const lines = S.cart.map(l =>
+    `<div class="rl"><span>${(l.wt?l.q.toFixed(2)+"kg":l.q)} × ${L?l.ar:l.en}</span><span>${money(l.p*l.q)}</span></div>`).join("");
+  const tn = TENDERS.find(x => x.id === S.tender);
+  document.getElementById("receipt").innerHTML = `
+    <div class="hd"><b>${head}</b><br>مطعم السد · Al Sadd Restaurant<br>CR 123456 · Doha, Qatar</div>
+    <div class="sep"></div>
+    ${lines || `<div class="rl"><span>—</span><span>0.00</span></div>`}
+    <div class="sep"></div>
+    <div class="rl"><span>${L?"المجموع":"Subtotal"}</span><span>${money(t.net)}</span></div>
+    <div class="rl"><span>${L?"ض.ق.م":"VAT"} ${S.vat?"5%":"n/a"}</span><span>${money(t.vat)}</span></div>
+    ${Math.abs(t.round)>=0.001?`<div class="rl"><span>${L?"تقريب":"Rounding"}</span><span>${money(t.round)}</span></div>`:""}
+    <div class="rl"><b>${L?"الإجمالي QAR":"TOTAL QAR"}</b><b>${money(t.due)}</b></div>
+    <div class="rl"><span>${L?tn.ar:tn.en}</span><span>${money(t.due)}</span></div>
+    ${S.vat?`<div class="sep"></div><div class="rl"><span>${L?"الرقم الضريبي للمشتري":"Buyer TRN"}</span><span>__________</span></div>`:""}
+    <div class="qr">${S.vat?(L?"رمز الفاتورة الإلكترونية":"e-invoice QR"):(L?"جاهز للفوترة الإلكترونية":"e-invoice slot reserved")}</div>
+    <div class="stamp ${S.vat?"vat":""}">${S.vat
+      ? (L?"مستند منظم جاهز للإرسال إلى الهيئة العامة للضرائب":"Structured document ready for GTA clearance")
+      : (L?"ليست فاتورة ضريبية — لا توجد ض.ق.م في قطر":"Not a tax invoice — no VAT enacted in Qatar")}</div>`;
+}
+
+/* ---------------- compliance dock ---------------- */
+const STAFF = [
+  {n:"Rajesh Kumar",  r:"Head chef · Malayalam UI",  qid:64,  hc:12},
+  {n:"Fatima Al-Ali", r:"Shift manager · Arabic UI", qid:210, hc:96},
+  {n:"Maria Santos",  r:"Cashier · Tagalog UI",      qid:19,  hc:-3},
+  {n:"Bikash Thapa",  r:"Kitchen porter · Nepali UI",qid:143, hc:41}
+];
+const SUPPLIERS = [
+  {n:"Widam Food Company", d:"Halal certificate", days:212},
+  {n:"Baladna", d:"Food safety certificate", days:88},
+  {n:"Gulf Frozen Imports", d:"Halal certificate", days:11}
+];
+const TEMPS = [
+  {n:"Walk-in chiller", v:"3.2 °C", ok:true},
+  {n:"Freezer 1", v:"−19.4 °C", ok:true},
+  {n:"Display fridge", v:"9.1 °C", ok:false}
+];
+function pill(days){
+  if(days < 0)  return `<span class="pill bad">${Math.abs(days)}d overdue</span>`;
+  if(days < 30) return `<span class="pill soon">${days}d left</span>`;
+  return `<span class="pill ok">${days}d left</span>`;
+}
+function renderDock(){
+  document.getElementById("dock").innerHTML = `
+    <div class="doc"><h3>Staff documents</h3>
+      ${STAFF.map(s=>`<div class="row"><div class="who">${s.n}<span>${s.r}</span></div>
+        <div style="text-align:end">${pill(s.qid)}<br><span style="font-size:11px;color:var(--muted)">QID</span></div>
+        <div style="text-align:end">${pill(s.hc)}<br><span style="font-size:11px;color:var(--muted)">Health card</span></div></div>`).join("")}
+      <div class="row" style="color:var(--maroon);font-weight:600">Maria Santos is blocked from the rota until the Baladiya health card is renewed.</div>
+    </div>
+    <div class="doc"><h3>Supplier certificates</h3>
+      ${SUPPLIERS.map(s=>`<div class="row"><div class="who">${s.n}<span>${s.d}</span></div>${pill(s.days)}</div>`).join("")}
+    </div>
+    <div class="doc"><h3>Cold chain · this round</h3>
+      ${TEMPS.map(t=>`<div class="row"><div class="who">${t.n}</div>
+        <span class="pill ${t.ok?"ok":"bad"}">${t.v}</span></div>`).join("")}
+      <div class="row" style="color:var(--maroon);font-weight:600">Display fridge out of band — corrective action required before the next round.</div>
+    </div>
+    <div class="doc"><h3>Payroll · WPS</h3>
+      <div class="check"><i>✓</i><div>All 4 employees have a validated Qatari IBAN</div></div>
+      <div class="check"><i>✓</i><div>QID numbers pass checksum validation</div></div>
+      <div class="check"><i>✓</i><div>Basic and allowances split matches contracts</div></div>
+      <div class="check pending"><i>○</i><div>SIF file for August generates on the 25th</div></div>
+    </div>
+    <div class="doc"><h3>VAT readiness</h3>
+      <div class="check"><i>✓</i><div>Tax groups mapped on every product</div></div>
+      <div class="check"><i>✓</i><div>Gapless invoice series per branch</div></div>
+      <div class="check"><i>✓</i><div>Buyer TRN capture built, hidden until enacted</div></div>
+      <div class="check"><i>✓</i><div>Structured invoice archive, 5-year retention</div></div>
+      <div class="check pending"><i>○</i><div>GTA clearance connector — awaiting published specification</div></div>
+    </div>
+    <div class="doc"><h3>Price integrity</h3>
+      <div class="check"><i>✓</i><div>128 shelf labels printed and matched to till prices</div></div>
+      <div class="check pending"><i>○</i><div>3 promotions held — labels queued, not yet printed</div></div>
+      <div class="check"><i>✓</i><div>Arabic name present on every active product</div></div>
+    </div>`;
+}
+
+/* ---------------- shell wiring ---------------- */
+function render(){
+  const L = S.lang === "ar";
+  document.documentElement.lang = L ? "ar" : "en";
+  document.documentElement.dir  = L ? "rtl" : "ltr";
+  document.documentElement.style.setProperty("--grad-dir", L ? "right" : "left");
+  document.getElementById("brandSub").textContent = L ? "نظام التشغيل للتجزئة في قطر" : "Qatar Retail OS";
+  document.getElementById("tVatLbl").textContent  = S.vat ? (L?"ض.ق.م 5%":"VAT 5%") : (L?"ض.ق.م 0%":"VAT 0%");
+  document.getElementById("tRamLbl").textContent  = L ? "وضع رمضان" : "Ramadan";
+  document.getElementById("tLangLbl").textContent = L ? "English" : "عربي";
+  document.getElementById("tabTill").textContent  = L ? "نقطة البيع" : "Till";
+  document.getElementById("tabDock").textContent  = L ? "لوحة الامتثال" : "Compliance dock";
+  document.getElementById("edTable").textContent  = L ? "المطاعم" : "SUQ Table";
+  document.getElementById("edShelf").textContent  = L ? "السوبرماركت" : "SUQ Shelf";
+  document.getElementById("catalogFoot").textContent = S.edition === "table"
+    ? (L ? "أسعار قنوات التوصيل تُدار بشكل منفصل عن أسعار الصالة."
+         : "Aggregator channel prices are managed separately from dine-in prices — commission is 25–30%.")
+    : (L ? "رسوم الأكياس بند مستقل قابل للتدقيق. رسوم الضريبة الانتقائية مدرجة في التكلفة وليست في الفاتورة."
+         : "Carrier bags are a tracked, auditable SKU. Excise sits in landed cost, never as a till line.");
+
+  document.getElementById("edTable").setAttribute("aria-pressed", S.edition==="table");
+  document.getElementById("edShelf").setAttribute("aria-pressed", S.edition==="shelf");
+  document.getElementById("tVat").setAttribute("aria-pressed", S.vat);
+  document.getElementById("tRam").setAttribute("aria-pressed", S.ramadan);
+  document.getElementById("tLang").setAttribute("aria-pressed", S.lang==="ar");
+  document.getElementById("tRam").classList.toggle("hidden", S.edition!=="table");
+  document.getElementById("tabTill").setAttribute("aria-pressed", S.view==="till");
+  document.getElementById("tabDock").setAttribute("aria-pressed", S.view==="dock");
+  document.getElementById("viewTill").classList.toggle("hidden", S.view!=="till");
+  document.getElementById("viewDock").classList.toggle("hidden", S.view!=="dock");
+
+  renderCats(); renderTiles(); renderTicket(); renderDock(); renderAthan();
+}
+
+function switchEdition(e){
+  if(S.edition === e) return;
+  S.edition = e; S.cat = "all"; S.cart = []; S.tender = "cash";
+  document.getElementById("ticketNo").textContent = e === "table" ? "QT-2026-000148" : "QS-2026-004417";
+  render();
+}
+document.getElementById("edTable").onclick = () => switchEdition("table");
+document.getElementById("edShelf").onclick = () => switchEdition("shelf");
+document.getElementById("tVat").onclick  = () => { S.vat = !S.vat; render(); };
+document.getElementById("tRam").onclick  = () => { S.ramadan = !S.ramadan; render(); };
+document.getElementById("tLang").onclick = () => { S.lang = S.lang === "en" ? "ar" : "en"; render(); };
+document.getElementById("tabTill").onclick = () => { S.view = "till"; render(); };
+document.getElementById("tabDock").onclick = () => { S.view = "dock"; render(); };
+document.getElementById("payBtn").onclick = () => {
+  const t = totals(), tn = TENDERS.find(x => x.id === S.tender);
+  alert(S.lang === "ar"
+    ? `تم التحصيل: ${money(t.due)} ر.ق عبر ${tn.ar}\nتكلفة القناة: ${money(t.cost)} ر.ق`
+    : `Payment taken: QAR ${money(t.due)} via ${tn.en}\nCost of this tender: QAR ${money(t.cost)}\n\n` +
+      (S.tender !== "fawran" ? `Fawran would have cost QAR ${money(t.due<=1000?0.5:2)} — saving QAR ${money(Math.max(0,t.cost-(t.due<=1000?0.5:2)))}.` : "Cheapest rail in Qatar."));
+  S.cart = []; render();
+};
+
+render();
+setInterval(renderAthan, 1000);
+</script>
+</body>
+</html>
